@@ -276,6 +276,7 @@ h2{font-weight:500;letter-spacing:-.5px}
 .d-facts svg,.d-body h2 svg,h2 .h{color:var(--pink)}
 .leaflet-tile-pane{filter:grayscale(.85) sepia(.15) brightness(1.04)}
 </style>
+<script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body data-view="home">
 <div class="app">
@@ -497,7 +498,7 @@ function toSortie(o, i, used) {
   return {
     id, t: o.nom, type: o.categorie || '',
     badge: e.includes('coeur') ? 'coeur' : e.includes('grat') ? 'gratuit' : e.includes('plan') ? 'plan' : '',
-    aVoir: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.a_voir)) || e.includes('a voir'),
+    aVoir: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.pas_encore_fait || o.a_voir)) || e.includes('a voir') || e.includes('pas encore'),
     featured: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_ce_moment)),
     age: o.age || '', price: o.prix || '', where: o.arrondissement || '', place: o.lieu || '',
     duration: o.duree || '', metro: o.metro || '', url: (/^https?:\/\//i.test(o.lien_partenaire || '') ? o.lien_partenaire : '') || o.lien_de_reservation || o.lien_reservation || o.reservation || o.lien || '',
@@ -511,7 +512,7 @@ let SORTIES = [];
 let STATE = 'loading';
 const find = id => SORTIES.find(x => x.id === id);
 const visual = s => (ART[s.art] || ART.generic) + (s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '');
-const badgeHtml = s => s.aVoir ? `<span class="badge b-avoir">À voir 👀</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
+const badgeHtml = s => s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
 const factsHtml = s => [[ICON.age, s.age], [ICON.pin, s.where], [ICON.price, s.price]].filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
 
 let favs = [];
@@ -680,7 +681,7 @@ function queryWords(q) {
   return simple(q).split(' ').filter(w => w && !STOP.has(w)).map(stem);
 }
 function searchText(s) {
-  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir' : '');
+  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir pas encore fait' : '');
   const words = simple([s.t, s.type, badge, s.age, s.price, s.where, s.place, s.metro, s.duration, s.why, s.tip].join(' ')).split(' ');
   return ' ' + words.map(stem).join(' ') + ' ' + words.join(' ') + ' ';
 }
@@ -927,8 +928,24 @@ function route() {
   else if (h === 'resultats') show('results', renderResults());
   else { renderHome(); show('home'); }
   if (changed) window.scrollTo(0, 0);
+  track();
 }
 window.addEventListener('hashchange', route);
+
+/* ---------- Statistiques de visite (GoatCounter, sans cookies) ---------- */
+let lastTracked = null;
+function track() {
+  const h = location.hash.slice(1);
+  const path = '/' + decodeURIComponent(h || '');
+  if (path === lastTracked) return;
+  const send = (tries) => {
+    if (window.goatcounter && window.goatcounter.count) {
+      lastTracked = path;
+      try { window.goatcounter.count({ path, title: document.title }); } catch (e) {}
+    } else if (tries > 0) setTimeout(() => send(tries - 1), 500);
+  };
+  send(20);
+}
 
 async function share() {
   const m = location.hash.match(/^#sortie\/(.+)$/);
