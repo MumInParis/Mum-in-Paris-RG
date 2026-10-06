@@ -447,7 +447,8 @@ const DEMO = [
 
 const BADGES = { coeur: ['b-coeur', 'Coup de cœur'], gratuit: ['b-gratuit', 'Gratuit'], plan: ['b-plan', 'Bon plan'] };
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '';
+const fixUrl = u => { u = String(u || '').trim(); if (!u) return ''; if (/^https?:\/\//i.test(u)) return u; if (/^(www\.)?[\w-]+(\.[\w-]+)+(\/\S*)?$/i.test(u)) return 'https://' + u; return ''; };
+const safeUrl = u => fixUrl(u);
 const norm = s => String(s || '').replace(/œ/g, 'oe').replace(/Œ/g, 'OE').replace(/æ/g, 'ae').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 const slug = t => norm(t).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'sortie';
 
@@ -506,8 +507,8 @@ function toSortie(o, i, used) {
     aVoir: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.pas_encore_fait || o.a_voir)) || e.includes('a voir') || e.includes('pas encore'),
     featured: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_ce_moment)),
     age: o.age || '', price: o.prix || '', where: o.arrondissement || '', place: o.lieu || '',
-    duration: o.duree || '', metro: o.metro || '', url: (/^https?:\/\//i.test(o.lien_partenaire || '') ? o.lien_partenaire : '') || o.lien_de_reservation || o.lien_reservation || o.reservation || o.lien || '',
-    partner: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.lien_partenaire)) || /^https?:\/\//i.test(o.lien_partenaire || ''),
+    duration: o.duree || '', metro: o.metro || '', url: fixUrl(o.lien_partenaire) || fixUrl(o.lien_de_reservation || o.lien_reservation || o.reservation || o.lien),
+    partner: !!String(o.lien_partenaire || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.lien_partenaire)),
     why: o.pourquoi_jaime || '', tip: o.mon_conseil || '', geo: parseGeo(o.coordonnees || o.coordonnees_gps || ''), photos: String(o.photo || o.photos || '').split(/[\s,;]+/).map(photoUrl).filter(Boolean), art: o._art || '', order: i
   };
 }
