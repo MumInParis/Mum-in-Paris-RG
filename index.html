@@ -657,8 +657,8 @@ let F = { q: '', age: [], budget: [], type: [], ou: [], rain: false };
 const resetF = () => { F = { q: '', age: [], budget: [], type: [], ou: [], rain: false }; };
 
 function ageRange(s) {
-  const t = norm(s.age);
-  let m = t.match(/(\d+)\s*(?:-|–|a)\s*(\d+)/);
+  const t = norm(s.age).replace(/(\d+)\s*mois/g, m => String(Math.floor(parseInt(m, 10) / 12)) + ' ans');
+  let m = t.match(/(\d+)\s*(?:ans?\s*)?(?:-|–|a)\s*(\d+)/);
   if (m) return [+m[1], +m[2]];
   m = t.match(/(?:des|a partir de|partir de)\s*(\d+)/) || t.match(/(\d+)\s*ans?\s*(?:et|\+)/);
   if (m) return [+m[1], 99];
