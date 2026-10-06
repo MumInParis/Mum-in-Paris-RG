@@ -641,7 +641,7 @@ function renderDetail(s) {
   return `
     <div class="d-hero">${s.photos.length > 1 ? `<div class="gal" id="gal">${s.photos.map((p, i) => `<div class="slide">${ART[s.art] || ART.generic}<img src="${esc(p)}" alt="Photo ${i + 1} sur ${s.photos.length}" loading="${i ? 'lazy' : 'eager'}" onerror="this.remove()"></div>`).join('')}</div><div class="dots" aria-hidden="true">${s.photos.map((p, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : visual(s)}
       <div class="d-top">
-        <button class="round" data-go="" aria-label="Retour">${ICON.back}</button>
+        <button class="round" data-back aria-label="Retour">${ICON.back}</button>
         <div>
           <button class="fav" aria-label="Ajouter ${esc(s.t)} aux favoris" aria-pressed="${favs.includes(s.id)}" data-id="${esc(s.id)}">${ICON.heart}</button>
           <button class="round" data-share aria-label="Partager cette sortie">${ICON.share}</button>
@@ -962,8 +962,16 @@ function show(name, html) {
   document.querySelectorAll('.nav [data-tab]').forEach(b => b.dataset.tab === cur ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
 }
 let lastHash = null;
+const navStack = [], scrollMem = {};
 function route() {
-  const h = location.hash.slice(1), changed = h !== lastHash; lastHash = h;
+  const h = location.hash.slice(1), changed = h !== lastHash;
+  let goingBack = false;
+  if (changed) {
+    if (lastHash !== null) scrollMem[lastHash] = window.scrollY;
+    if (navStack.length > 1 && navStack[navStack.length - 2] === h) { navStack.pop(); goingBack = true; }
+    else navStack.push(h);
+  }
+  lastHash = h;
   let m, s;
   document.title = 'Mum in Paris';
   if ((m = h.match(/^sortie\/(.+)$/)) && (s = find(decodeURIComponent(m[1])))) {
@@ -983,7 +991,7 @@ function route() {
   else if (h === 'a-propos') show('about', renderAbout());
   else if (h === 'resultats') show('results', renderResults());
   else { renderHome(); show('home'); }
-  if (changed) window.scrollTo(0, 0);
+  if (changed) { const y = goingBack ? (scrollMem[h] || 0) : 0; window.scrollTo(0, y); if (goingBack && y) setTimeout(() => window.scrollTo(0, y), 60); }
   track();
 }
 window.addEventListener('hashchange', route);
@@ -1028,6 +1036,7 @@ document.addEventListener('click', e => {
     if (document.body.dataset.view === 'favs') route();
     return;
   }
+  if (e.target.closest('[data-back]')) { if (navStack.length > 1) history.back(); else location.hash = ''; return; }
   const go = e.target.closest('[data-go]');
   if (go) { location.hash = go.dataset.go; return; }
   if (e.target.closest('[data-share]')) { share(); return; }
