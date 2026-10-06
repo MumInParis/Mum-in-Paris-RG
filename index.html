@@ -275,6 +275,9 @@ h2{font-weight:500;letter-spacing:-.5px}
 .d-facts{border-color:var(--ink)}
 .d-facts svg,.d-body h2 svg,h2 .h{color:var(--pink)}
 .leaflet-tile-pane{filter:grayscale(.85) sepia(.15) brightness(1.04)}
+.b-pause{background:#E3DED5;color:#5C5A55}
+.row-card.paused .thumb{filter:grayscale(1);opacity:.7}
+.row-card.paused h3{color:var(--ink-soft)}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -498,6 +501,8 @@ function toSortie(o, i, used) {
   return {
     id, t: o.nom, type: o.categorie || '',
     badge: e.includes('coeur') ? 'coeur' : e.includes('grat') ? 'gratuit' : e.includes('plan') ? 'plan' : '',
+    pause: !!(o.en_pause || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.en_pause)),
+    pauseNote: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_pause)) ? '' : (o.en_pause || '').trim(),
     aVoir: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.pas_encore_fait || o.a_voir)) || e.includes('a voir') || e.includes('pas encore'),
     featured: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_ce_moment)),
     age: o.age || '', price: o.prix || '', where: o.arrondissement || '', place: o.lieu || '',
@@ -512,7 +517,7 @@ let SORTIES = [];
 let STATE = 'loading';
 const find = id => SORTIES.find(x => x.id === id);
 const visual = s => (ART[s.art] || ART.generic) + (s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '');
-const badgeHtml = s => s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
+const badgeHtml = s => s.pause ? `<span class="badge b-pause">En pause</span>` : s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
 const factsHtml = s => [[ICON.age, s.age], [ICON.pin, s.where], [ICON.price, s.price]].filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
 
 let favs = [];
@@ -541,8 +546,8 @@ function renderHome() {
   const rail = document.getElementById('rail');
   if (STATE === 'loading' && !SORTIES.length) { rail.innerHTML = `<div class="empty-box" style="flex:1"><p>Chargement des sorties…</p></div>`; return; }
   if (STATE === 'error' && !SORTIES.length) { rail.innerHTML = `<div class="empty-box" style="flex:1"><p>Les sorties n’ont pas pu être chargées. Vérifiez votre connexion puis rechargez la page.</p></div>`; return; }
-  const feat = SORTIES.filter(s => s.featured);
-  const list = feat.length ? feat : SORTIES.slice(0, 6);
+  const feat = SORTIES.filter(s => s.featured && !s.pause);
+  const list = feat.length ? feat : SORTIES.filter(s => !s.pause).slice(0, 6);
   rail.innerHTML = list.length ? list.map(s => `
     <article class="card" tabindex="0" role="link" aria-label="Voir la fiche ${esc(s.t)}" data-open="${esc(s.id)}">
       <div class="pic">${visual(s)}${badgeHtml(s)}
@@ -562,6 +567,10 @@ function distKm(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 function sortList(list) {
+  const r = sortList0(list);
+  return r.filter(s => !s.pause).concat(r.filter(s => s.pause));
+}
+function sortList0(list) {
   const l = list.slice();
   if (SORT === 'new') return l.sort((a, b) => b.order - a.order);
   if (SORT === 'coeur') return l.sort((a, b) => (b.badge === 'coeur') - (a.badge === 'coeur') || b.order - a.order);
@@ -578,7 +587,7 @@ function compactRow(s, extra) {
   const l2 = [s.age, s.price].filter(Boolean).join(' · ');
   const l3 = [s.place, s.where].filter(Boolean).join(' · ');
   return `
-    <button class="row-card" data-open="${esc(s.id)}">
+    <button class="row-card${s.pause ? ' paused' : ''}" data-open="${esc(s.id)}">
       <span class="thumb">${visual(s)}</span>
       <span class="rc-body">${badgeHtml(s)}<h3>${esc(s.t)}</h3>
         ${s.type ? `<span class="ln">${ICON.star}${esc(s.type)}</span>` : ''}
@@ -632,6 +641,7 @@ function renderDetail(s) {
       ${s.where || s.place ? `<p class="loc">${ICON.pin}${esc([s.where, s.place].filter(Boolean).join(', '))}</p>` : ''}
       ${s.geo ? `<a class="d-map" href="#carte/${encodeURIComponent(s.id)}">${ICON.map}Voir sur la carte</a>` : ''}
       ${facts ? `<div class="d-facts">${facts}</div>` : '<div style="height:20px"></div>'}
+      ${s.pause ? `<div class="avoir-note pause-note"><strong>⏸ Momentanément en pause</strong><p>${s.pauseNote ? 'En pause ' + esc(s.pauseNote) + '.' : 'Elle reviendra bientôt, je vous tiens au courant !'}</p></div>` : ''}
       ${s.aVoir ? `<div class="avoir-note"><strong>👀 Pas encore testée par nous</strong><p>Je l’ai repérée pour vous, et je vous dirai vite ce qu’on en a pensé !</p></div>` : ''}
       ${s.aVoir && !s.why ? '' : `<h2>${s.aVoir ? 'Pourquoi elle me tente' : 'Pourquoi j’aime'} ${ICON.heart.replace('fill="none"', 'fill="currentColor"')}</h2>
       <p class="why ${s.why ? '' : 'empty'}">${s.why ? esc(s.why).replace(/\n/g, '<br>') : 'Mon avis arrive très bientôt.'}</p>`}
