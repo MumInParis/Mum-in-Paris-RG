@@ -504,12 +504,12 @@ function toSortie(o, i, used) {
     badge: e.includes('coeur') ? 'coeur' : e.includes('grat') ? 'gratuit' : e.includes('plan') ? 'plan' : '',
     pause: !!(o.en_pause || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.en_pause)),
     pauseNote: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_pause)) ? '' : (o.en_pause || '').trim(),
-    aVoir: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.pas_encore_fait || o.a_voir)) || e.includes('a voir') || e.includes('pas encore'),
+    aVoir: (!!String(o.pas_encore_fait || o.a_voir || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.pas_encore_fait || o.a_voir))) || e.includes('a voir') || e.includes('pas encore'),
     featured: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_ce_moment)),
     age: o.age || '', price: o.prix || '', where: o.arrondissement || '', place: o.lieu || '',
     duration: o.duree || '', metro: o.metro || '', url: fixUrl(o.lien_partenaire) || fixUrl(o.lien_de_reservation || o.lien_reservation || o.reservation || o.lien),
     partner: !!String(o.lien_partenaire || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.lien_partenaire)),
-    why: o.pourquoi_jaime || '', tip: o.mon_conseil || '', geo: parseGeo(o.coordonnees || o.coordonnees_gps || ''), photos: String(o.photo || o.photos || '').split(/[\s,;]+/).map(photoUrl).filter(Boolean), art: o._art || '', order: i
+    why: o.pourquoi_jaime || '', tip: o.mon_conseil || '', geo: (g => g && g[0] > 48.1 && g[0] < 49.3 && g[1] > 1.4 && g[1] < 3.6 ? g : null)(parseGeo(o.coordonnees || o.coordonnees_gps || '')), photos: String(o.photo || o.photos || '').split(/[\s,;]+/).map(photoUrl).filter(Boolean), art: o._art || '', order: i
   };
 }
 const build = list => { const used = new Set(); return list.map((o, i) => { const s = toSortie(o, i, used); s.photo = s.photos[0] || ''; return s; }); };
