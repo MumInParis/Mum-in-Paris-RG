@@ -238,7 +238,7 @@ body[data-view="home"] #view{display:none}
 .avoir-note{background:var(--sky);color:var(--ink);border-radius:16px;padding:14px 16px;margin:0 0 22px}
 .avoir-note strong{display:block;font-size:15px;margin-bottom:2px}
 .avoir-note p{margin:0;font-size:14px;line-height:1.55}
-.star-p{margin-left:2px}
+.star-p{margin-left:-6px}
 .partner-note{margin:0;font-size:12px;line-height:1.45;color:var(--ink-soft);text-align:center;max-width:44ch}
 .leaflet-tile-pane{filter:saturate(.55) sepia(.12) brightness(1.03)}
 /* Rive gauche */
@@ -543,9 +543,9 @@ const RESA = { oblig: 'Réservation obligatoire', conseil: 'Réservation conseil
 function parseResa(v) {
   const t = norm(v);
   if (!t) return ['', ''];
-  if (/^(oui|o|x|yes|y|1|vrai|true)$/.test(t) || /oblig|indispensable|sur reservation|reservation uniquement/.test(t)) return ['oblig', RESA.oblig];
+  if (/^(oui|o|x|yes|y|1|vrai|true|avec)$/.test(t) || /^avec\b|oblig|indispensable|necessaire|sur reservation|reservation uniquement/.test(t)) return ['oblig', RESA.oblig];
   if (/conseil|recommand|conseill/.test(t)) return ['conseil', RESA.conseil];
-  if (/^(sans|non|libre|pas|acces libre)/.test(t) || /sans resa|sans reservation/.test(t)) return ['sans', RESA.sans];
+  if (/^(sans|non|libre|pas|acces libre|aucune)/.test(t) || /sans resa|sans reservation/.test(t)) return ['sans', RESA.sans];
   return ['', String(v).trim()];
 }
 const today0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
