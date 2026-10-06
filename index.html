@@ -1077,7 +1077,13 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('[data-back]')) { if (navStack.length > 1) history.back(); else location.hash = ''; return; }
   const go = e.target.closest('[data-go]');
-  if (go) { location.hash = go.dataset.go; return; }
+  if (go) {
+    const target = go.dataset.go.replace(/^#/, '');
+    // Si la destination est la page précédente, on recule dans l'historique au lieu d'empiler une nouvelle page
+    if (navStack.length > 1 && navStack[navStack.length - 2] === target) history.back();
+    else location.hash = go.dataset.go;
+    return;
+  }
   if (e.target.closest('[data-share]')) { share(); return; }
   const tab = e.target.closest('[data-tab]');
   if (tab) { location.hash = ({ search: 'rechercher', favs: 'favoris', idea: 'idee', coeur: 'coups-de-coeur' })[tab.dataset.tab] || ''; return; }
