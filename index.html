@@ -285,6 +285,7 @@ h2{font-weight:500;letter-spacing:-.5px}
 .leg svg{width:18px;height:18px}
 .leg[aria-pressed="false"]{opacity:.4;text-decoration:line-through}
 .bday-note{background:#F6E3E5}
+.b-last{background:#C8102E;color:#fff}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -420,6 +421,8 @@ const ICON = {
   insta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".6" fill="currentColor"/></svg>',
   map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></svg>',
   cake:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M4 20h16M5 20v-6h14v6M5 16.5c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 5 0M8 14v-3M12 14v-3M16 14v-3M8 7.5v.5M12 7v.5M16 7.5v.5"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
+  resa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4M9 15l2 2 4-4"/></svg>',
   chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'
 };
 
@@ -518,18 +521,51 @@ function toSortie(o, i, used) {
     aVoir: (!!String(o.pas_encore_fait || o.a_voir || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.pas_encore_fait || o.a_voir))) || e.includes('a voir') || e.includes('pas encore'),
     featured: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_ce_moment)),
     age: o.age || '', price: o.prix || '', where: o.arrondissement || '', place: o.lieu || '',
-    duration: o.duree || '', metro: o.metro || '', url: fixUrl(o.lien_partenaire) || fixUrl(o.lien_de_reservation || o.lien_reservation || o.reservation || o.lien),
+    duration: o.duree || '', metro: o.metro || '', url: fixUrl(o.lien_partenaire) || fixUrl(o.lien_de_reservation || o.lien_reservation || (fixUrl(o.reservation) ? o.reservation : '') || o.lien),
     partner: !!String(o.lien_partenaire || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.lien_partenaire)),
     why: o.pourquoi_jaime || '', tip: o.mon_conseil || '', geo: (g => g && g[0] > 48.1 && g[0] < 49.3 && g[1] > 1.4 && g[1] < 3.6 ? g : null)(parseGeo(o.coordonnees || o.coordonnees_gps || '')), photos: String(o.photo || o.photos || '').split(/[\s,;]+/).map(photoUrl).filter(Boolean), art: o._art || '', order: i
   };
 }
-const build = list => { const used = new Set(); return list.map((o, i) => { const s = toSortie(o, i, used); s.photo = s.photos[0] || ''; return s; }); };
+const MOIS = ['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+function parseDate(v) {
+  const t = norm(v);
+  if (!t) return null;
+  let m = t.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  m = t.match(/(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?/);
+  if (m) { let y = m[3] ? +m[3] : new Date().getFullYear(); if (y < 100) y += 2000; return new Date(y, +m[2] - 1, +m[1]); }
+  m = t.match(/(\d{1,2})(?:er)?\s+([a-z]+)\.?(?:\s+(\d{4}))?/);
+  if (m) { const i = MOIS.findIndex(x => x.startsWith(m[2].slice(0, 3))); if (i >= 0) return new Date(m[3] ? +m[3] : new Date().getFullYear(), i, +m[1]); }
+  return null;
+}
+const fmtDate = d => d.getDate() + (d.getDate() === 1 ? 'er' : '') + ' ' + ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][d.getMonth()] + ' ' + d.getFullYear();
+const RESA = { oblig: 'Réservation obligatoire', conseil: 'Réservation conseillée', sans: 'Sans réservation' };
+function parseResa(v) {
+  const t = norm(v);
+  if (!t) return ['', ''];
+  if (/^(oui|o|x|yes|y|1|vrai|true)$/.test(t) || /oblig|indispensable|sur reservation|reservation uniquement/.test(t)) return ['oblig', RESA.oblig];
+  if (/conseil|recommand|conseill/.test(t)) return ['conseil', RESA.conseil];
+  if (/^(sans|non|libre|pas|acces libre)/.test(t) || /sans resa|sans reservation/.test(t)) return ['sans', RESA.sans];
+  return ['', String(v).trim()];
+}
+const today0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const build = list => {
+  const used = new Set(), t0 = today0();
+  return list.map((o, i) => {
+    const s = toSortie(o, i, used);
+    s.photo = s.photos[0] || '';
+    s.until = parseDate(o.jusquau || o.jusqu_au || o.date_de_fin || '');
+    s.lastDays = !!s.until && (s.until - t0) / 864e5 <= 7 && s.until >= t0;
+    [s.resa, s.resaLabel] = parseResa(o.reservation_requise || o.resa || o.reservation || '');
+    return s;
+  }).filter(s => !s.until || s.until >= t0);
+};
 
 let SORTIES = [];
 let STATE = 'loading';
 const find = id => SORTIES.find(x => x.id === id);
 const visual = s => (ART[s.art] || ART.generic) + (s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '');
-const badgeHtml = s => s.pause ? `<span class="badge b-pause">En pause</span>` : s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
+const badgeHtml = s => s.pause ? `<span class="badge b-pause">En pause</span>` : s.lastDays ? `<span class="badge b-last">Derniers jours</span>` : s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
 const factsHtml = s => [[ICON.age, s.age], [ICON.pin, s.where], [ICON.price, s.price]].filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
 
 let favs = [];
@@ -635,7 +671,7 @@ function renderAll() {
 }
 
 function renderDetail(s) {
-  const facts = [[ICON.age, s.age], [ICON.ticket, s.price], [ICON.clock, s.duration], [ICON.metro, s.metro]]
+  const facts = [[ICON.age, s.age], [ICON.ticket, s.price], [ICON.clock, s.duration], [ICON.metro, s.metro], [ICON.cal, s.until ? 'Jusqu’au ' + fmtDate(s.until) : ''], [ICON.resa, s.resaLabel]]
     .filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
   const url = safeUrl(s.url);
   return `
@@ -675,11 +711,12 @@ const GROUPS = [
   { key: 'budget', title: 'Quel budget ?', icon: ICON.price, opts: [['free', 'Gratuit'], ['10', '≤ 10 €'], ['20', '10–20 €'], ['20+', '20 € et +']] },
   { key: 'type', title: 'Quel type ?', icon: ICON.star, opts: null },
   { key: 'occ', title: 'Une occasion ?', icon: ICON.cake, opts: [['anniv', 'Organisation d’anniversaire']] },
+  { key: 'resa', title: 'Réservation ?', icon: ICON.resa, opts: [['sans', 'Sans réservation'], ['last', 'Derniers jours']] },
   { key: 'ou', title: 'Où ?', icon: ICON.pin, opts: [['1-5', 'Paris 1–5'], ['6-10', 'Paris 6–10'], ['11-20', 'Paris 11–20'], ['banlieue', 'Proche banlieue'], ['metro', 'Accessible en métro']] }
 ];
 const LABELS = { rain: 'Quand il pleut', '6-8': '6–8 ans', 'Théâtre': 'Théâtre', 'Theatre': 'Théâtre' };
-let F = { q: '', age: [], budget: [], type: [], occ: [], ou: [], rain: false };
-const resetF = () => { F = { q: '', age: [], budget: [], type: [], occ: [], ou: [], rain: false }; };
+let F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false };
+const resetF = () => { F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false }; };
 
 function ageRange(s) {
   const t = norm(s.age).replace(/(\d+)\s*mois/g, m => String(Math.floor(parseInt(m, 10) / 12)) + ' ans');
@@ -706,7 +743,7 @@ function queryWords(q) {
   return simple(q).split(' ').filter(w => w && !STOP.has(w)).map(stem);
 }
 function searchText(s) {
-  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir pas encore fait' : '') + (s.bday ? ' anniversaire anniversaires anniv' : '') + ' ' + (s.bdayNote || '');
+  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir pas encore fait' : '') + (s.bday ? ' anniversaire anniversaires anniv' : '') + ' ' + (s.resaLabel || '') + (s.lastDays ? ' derniers jours' : '') + ' ' + (s.bdayNote || '');
   const words = simple([s.t, s.type, badge, s.age, s.price, s.where, s.place, s.metro, s.duration, s.why, s.tip].join(' ')).split(' ');
   return ' ' + words.map(stem).join(' ') + ' ' + words.join(' ') + ' ';
 }
@@ -734,6 +771,8 @@ function matches(s) {
   }
   if (F.ou.includes('metro') && !s.metro) return false;
   if (F.occ.includes('anniv') && !s.bday) return false;
+  if (F.resa.includes('sans') && s.resa !== 'sans') return false;
+  if (F.resa.includes('last') && !s.lastDays) return false;
   if (F.rain && ['exterieur', 'nature'].includes(norm(s.type))) return false;
   return true;
 }
