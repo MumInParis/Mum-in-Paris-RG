@@ -88,9 +88,9 @@ h2{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.1;margi
 .facts svg{width:15px;height:15px;flex:none}
 
 /* Quick filters */
-.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 12px}
+.quick{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:0 8px}
 .q{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;cursor:pointer;padding:6px 2px;font-size:13px;font-weight:600;text-align:center;line-height:1.2}
-.q .disc{width:62px;height:62px;border-radius:50%;display:grid;place-items:center}
+.q .disc{width:54px;height:54px;border-radius:50%;display:grid;place-items:center}
 .q .disc svg{width:28px;height:28px}
 .q-pink .disc{background:var(--pink-soft);color:var(--pink-ink)}
 .q-sky .disc{background:var(--sky);color:var(--sky-ink)}
@@ -286,6 +286,12 @@ h2{font-weight:500;letter-spacing:-.5px}
 .leg[aria-pressed="false"]{opacity:.4;text-decoration:line-through}
 .bday-note{background:#F6E3E5}
 .b-last{background:#C8102E;color:#fff}
+.q{font-size:12px;padding:6px 0}
+.q .disc svg{width:25px;height:25px}
+.q-last .disc{border-color:var(--pink)!important;color:var(--pink)!important;background:var(--pink-soft)!important}
+.row-card .ln-end{color:var(--pink-ink);font-weight:600}
+.d-hero.no-photo{height:210px}
+html{background:var(--bg)}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -370,6 +376,7 @@ h2{font-weight:500;letter-spacing:-.5px}
     <button class="q q-sky" data-quick="rain"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 7.5 3.8 3.8 0 0 1 17.5 15z"/><path d="M8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5"/></svg></span>Quand il pleut</button>
     <button class="q q-butter" data-quick="age:6-8"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="13" r="7.5"/><path d="M9 4.5q3-2 4 1M9.3 12h.01M14.7 12h.01M9.5 15.5q2.5 2 5 0"/></svg></span>6–8 ans</button>
     <button class="q q-mint" data-quick="metro"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><rect x="6" y="3.5" width="12" height="14" rx="3"/><path d="M6 10.5h12M9 14.5h.01M15 14.5h.01M8.5 21l2-3.5M15.5 21l-2-3.5"/></svg></span>Sans voiture</button>
+    <button class="q q-last" data-quick="soon"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M7 3.5h10M7 20.5h10M8 3.5v3a4 4 0 0 0 2 3.5l2 1.2 2-1.2a4 4 0 0 0 2-3.5v-3M8 20.5v-3a4 4 0 0 1 2-3.5l2-1.2 2 1.2a4 4 0 0 1 2 3.5v3"/><path d="M10 18h4" stroke-width="2.4"/></svg></span>Dernière chance</button>
   </div>
 </section>
 
@@ -556,6 +563,7 @@ const build = list => {
     s.photo = s.photos[0] || '';
     s.until = parseDate(o.jusquau || o.jusqu_au || o.date_de_fin || '');
     s.lastDays = !!s.until && (s.until - t0) / 864e5 <= 7 && s.until >= t0;
+    s.soon = !!s.until && (s.until - t0) / 864e5 <= 31 && s.until >= t0;
     [s.resa, s.resaLabel] = parseResa(o.reservation_requise || o.resa || o.reservation || '');
     return s;
   }).filter(s => !s.until || s.until >= t0);
@@ -564,7 +572,33 @@ const build = list => {
 let SORTIES = [];
 let STATE = 'loading';
 const find = id => SORTIES.find(x => x.id === id);
-const visual = s => (ART[s.art] || ART.generic) + (s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '');
+/* Pictos par catégorie, quand il n'y a pas de photo */
+const PICTOS = {
+  musee: ['#141414', '<path d="M12 3.5l-8.5 5h17zM4 9.5h16M5.5 9.7v7M9.8 9.7v7M14.2 9.7v7M18.5 9.7v7M3.5 17.5h17M3 20.5h18"/>'],
+  spectacle: ['#C8102E', '<path d="M3 4h18M4.5 4v16h3.5c-2-4-2.5-10-1-16M19.5 4v16H16c2-4 2.5-10 1-16"/><path d="M12 9.5l.9 1.9 2.1.3-1.5 1.4.4 2.1-1.9-1-1.9 1 .4-2.1-1.5-1.4 2.1-.3z" fill="#C8102E" stroke="none"/>'],
+  atelier: ['#2F5D50', '<path d="M14.5 4.5l5 5-7.5 7.5-5-5zM7 12c-2 .5-3 2-3 4 0 1.3-.5 2.5-1.5 3.2 3.2.6 6.6-.5 7.2-3.7"/>'],
+  sport: ['#2F5D50', '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5c-3.2 3-3.2 14 0 17M12 3.5c3.2 3 3.2 14 0 17M3.5 12h17"/>'],
+  nature: ['#6B8F3A', '<path d="M12 21v-4.5M12 3.5l5.5 7h-3l4 5.5H5.5l4-5.5h-3z"/>'],
+  resto: ['#B8862B', '<path d="M7 3.5v5a2 2 0 0 0 4 0v-5M9 10.5v10M17 3.5c-2 1.5-2.7 5-2.7 7.5H17v9.5"/>'],
+  gouter: ['#B8862B', '<path d="M4.5 10h12v4a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM16.5 11.5H18a2.5 2.5 0 0 1 0 5h-2M8.5 3.5c-.8 1.2.8 2.3 0 3.5M12.5 3.5c-.8 1.2.8 2.3 0 3.5"/>'],
+  activite: ['#2F5D50', '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".9" fill="#141414"/>']
+};
+function pictoKey(s) {
+  const t = norm(s.type);
+  if (/spectacle|theatre/.test(t)) return 'spectacle';
+  if (/gouter/.test(t)) return 'gouter';
+  if (/restaurant|manger/.test(t)) return 'resto';
+  if (/atelier/.test(t)) return 'atelier';
+  if (/sport/.test(t)) return 'sport';
+  if (/exterieur|nature|parc/.test(t)) return 'nature';
+  if (/musee|expo/.test(t)) return 'musee';
+  return 'activite';
+}
+function catArt(s) {
+  const [c, g] = PICTOS[pictoKey(s)];
+  return `<svg viewBox="0 0 250 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="250" height="140" fill="#EFEAE1"/><circle cx="125" cy="70" r="44" fill="${c}" opacity=".09"/><g transform="translate(95 40) scale(2.5)" fill="none" stroke="#141414" stroke-width="1.15" stroke-linejoin="round" stroke-linecap="round">${g}</g></svg>`;
+}
+const visual = s => (ART[s.art] || catArt(s)) + (s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '');
 const badgeHtml = s => s.pause ? `<span class="badge b-pause">En pause</span>` : s.lastDays ? `<span class="badge b-last">Derniers jours</span>` : s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
 const factsHtml = s => [[ICON.age, s.age], [ICON.pin, s.where], [ICON.price, s.price]].filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
 
@@ -621,6 +655,7 @@ function sortList(list) {
 }
 function sortList0(list) {
   const l = list.slice();
+  if (SORT === 'new' && F.soon) return l.sort((a, b) => a.until - b.until);
   if (SORT === 'new') return l.sort((a, b) => b.order - a.order);
   if (SORT === 'coeur') return l.sort((a, b) => (b.badge === 'coeur') - (a.badge === 'coeur') || b.order - a.order);
   if (SORT === 'prix') return l.sort((a, b) => { const x = priceVal(a), y = priceVal(b); return (x == null) - (y == null) || (x || 0) - (y || 0); });
@@ -632,13 +667,14 @@ function sortBar() {
   return `<div class="sortbar" role="group" aria-label="Trier par">${SORTS.map(([k, l]) =>
     `<button class="chip" data-sort="${k}" aria-pressed="${SORT === k}">${l}</button>`).join('')}</div>`;
 }
-function compactRow(s, extra) {
+function compactRow(s, extra, end) {
   const l2 = [s.age, s.price].filter(Boolean).join(' · ');
   const l3 = [s.place, s.where].filter(Boolean).join(' · ');
   return `
     <button class="row-card${s.pause ? ' paused' : ''}" data-open="${esc(s.id)}">
       <span class="thumb">${visual(s)}</span>
       <span class="rc-body">${badgeHtml(s)}<h3>${esc(s.t)}</h3>
+        ${end ? `<span class="ln ln-end">${ICON.cal}${esc(end)}</span>` : ''}
         ${s.type ? `<span class="ln">${ICON.star}${esc(s.type)}</span>` : ''}
         ${l2 ? `<span class="ln">${ICON.price}${esc(l2)}</span>` : ''}
         ${extra || l3 ? `<span class="ln">${ICON.pin}${extra ? extra + (l3 ? ' · ' : '') : ''}${esc(l3)}</span>` : ''}
@@ -650,7 +686,8 @@ function rowCards(list) {
   return `<div class="list">${sortList(list).map(s => {
     const d = SORT === 'distance' && USERPOS && s.geo ? distKm(USERPOS, s.geo) : null;
     const dist = d == null ? '' : 'à ' + (d < 1 ? Math.round(d * 1000) + ' m' : d.toFixed(1).replace('.', ',') + ' km');
-    return compactRow(s, dist);
+    const end = F.soon && s.until ? 'Jusqu’au ' + s.until.getDate() + ' ' + ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'][s.until.getMonth()] : '';
+    return compactRow(s, dist, end);
   }).join('')}</div>`;
 }
 function askPosition() {
@@ -675,7 +712,7 @@ function renderDetail(s) {
     .filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
   const url = safeUrl(s.url);
   return `
-    <div class="d-hero">${s.photos.length > 1 ? `<div class="gal" id="gal">${s.photos.map((p, i) => `<div class="slide">${ART[s.art] || ART.generic}<img src="${esc(p)}" alt="Photo ${i + 1} sur ${s.photos.length}" loading="${i ? 'lazy' : 'eager'}" onerror="this.remove()"></div>`).join('')}</div><div class="dots" aria-hidden="true">${s.photos.map((p, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : visual(s)}
+    <div class="d-hero${s.photos.length || s.art ? '' : ' no-photo'}">${s.photos.length > 1 ? `<div class="gal" id="gal">${s.photos.map((p, i) => `<div class="slide">${ART[s.art] || catArt(s)}<img src="${esc(p)}" alt="Photo ${i + 1} sur ${s.photos.length}" loading="${i ? 'lazy' : 'eager'}" onerror="this.remove()"></div>`).join('')}</div><div class="dots" aria-hidden="true">${s.photos.map((p, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : visual(s)}
       <div class="d-top">
         <button class="round" data-back aria-label="Retour">${ICON.back}</button>
         <div>
@@ -715,8 +752,8 @@ const GROUPS = [
   { key: 'ou', title: 'Où ?', icon: ICON.pin, opts: [['1-5', 'Paris 1–5'], ['6-10', 'Paris 6–10'], ['11-20', 'Paris 11–20'], ['banlieue', 'Proche banlieue'], ['metro', 'Accessible en métro']] }
 ];
 const LABELS = { rain: 'Quand il pleut', '6-8': '6–8 ans', 'Théâtre': 'Théâtre', 'Theatre': 'Théâtre' };
-let F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false };
-const resetF = () => { F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false }; };
+let F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false, soon: false };
+const resetF = () => { F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false, soon: false }; };
 
 function ageRange(s) {
   const t = norm(s.age).replace(/(\d+)\s*mois/g, m => String(Math.floor(parseInt(m, 10) / 12)) + ' ans');
@@ -774,6 +811,7 @@ function matches(s) {
   if (F.resa.includes('sans') && s.resa !== 'sans') return false;
   if (F.resa.includes('last') && !s.lastDays) return false;
   if (F.rain && ['exterieur', 'nature'].includes(norm(s.type))) return false;
+  if (F.soon && !s.soon) return false;
   return true;
 }
 const results = () => SORTIES.filter(matches);
@@ -812,6 +850,7 @@ function renderResults() {
     tags.push([g.key, v, o ? o[1] : (LABELS[v] || v)]);
   }));
   if (F.rain) tags.push(['rain', '', LABELS.rain]);
+  if (F.soon) tags.push(['soon', '', 'Dernière chance']);
   return `<div class="v-head"><button class="icon-btn" data-go="#rechercher" aria-label="Modifier la recherche">${ICON.back}</button><h1>${list.length} sortie${list.length > 1 ? 's' : ''} trouvée${list.length > 1 ? 's' : ''}</h1></div>
   ${tags.length ? `<div class="active-filters">${tags.map(([k, v, l]) => `<button class="chip" aria-pressed="true" data-rm="${k}" data-v="${esc(v)}" aria-label="Retirer le filtre ${esc(l)}">${esc(l)} ✕</button>`).join('')}</div>` : ''}
   ${list.length ? sortBar() + rowCards(list)
@@ -829,6 +868,7 @@ function quick(q) {
   else if (q === 'anniv') F.occ = ['anniv'];
   else if (q === 'rain') F.rain = true;
   else if (q === 'metro') F.ou = ['metro'];
+  else if (q === 'soon') F.soon = true;
   else if (q.startsWith('age:')) F.age = [q.slice(4)];
   else if (q === 'type:Spectacle') F.type = ['Spectacle', 'Théâtre', 'Theatre'];
   else if (q === 'type:Manger') F.type = ['Restaurant', 'Goûter', 'Gouter', 'Manger'];
@@ -1104,7 +1144,7 @@ document.addEventListener('click', e => {
   const rm = e.target.closest('[data-rm]');
   if (rm) {
     const k = rm.dataset.rm;
-    if (k === 'q') F.q = ''; else if (k === 'rain') F.rain = false; else F[k] = F[k].filter(x => x !== rm.dataset.v);
+    if (k === 'q') F.q = ''; else if (k === 'rain') F.rain = false; else if (k === 'soon') F.soon = false; else F[k] = F[k].filter(x => x !== rm.dataset.v);
     route(); return;
   }
   if (e.target.closest('[data-clear]')) { resetF(); route(); return; }
