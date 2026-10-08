@@ -8,7 +8,8 @@
 <meta name="description" content="Les sorties en famille à Paris recommandées par @mum_inparis.">
 <meta property="og:title" content="Mum in Paris">
 <meta property="og:description" content="Parce que Paris, c’est à visiter en famille !">
-<meta property="og:image" content="icon-512.png">
+<meta property="og:image" content="https://muminparis.github.io/icon-512.png">
+<meta property="og:url" content="https://muminparis.github.io/">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -307,9 +308,14 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <button class="icon-btn" aria-label="À propos" data-go="#a-propos">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
   </button>
+<span style="display:flex;gap:2px">
+  <button class="icon-btn" aria-label="Partager Mum in Paris" data-share>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5M8 7.5l4-4 4 4M6 11H5v9.5h14V11h-1"/></svg>
+  </button>
   <button class="icon-btn" aria-label="Mes favoris" data-go="#favoris">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
   </button>
+</span>
 </header>
 
 <div class="hero">
@@ -886,7 +892,7 @@ function renderResults() {
   }));
   if (F.rain) tags.push(['rain', '', LABELS.rain]);
   if (F.soon) tags.push(['soon', '', 'Dernière chance']);
-  return `<div class="v-head"><button class="icon-btn" data-go="#rechercher" aria-label="Modifier la recherche">${ICON.back}</button><h1>${list.length} sortie${list.length > 1 ? 's' : ''} trouvée${list.length > 1 ? 's' : ''}</h1></div>
+  return `<div class="v-head"><button class="icon-btn" data-back aria-label="Retour">${ICON.back}</button><h1>${list.length} sortie${list.length > 1 ? 's' : ''} trouvée${list.length > 1 ? 's' : ''}</h1></div>
   ${tags.length ? `<div class="active-filters">${tags.map(([k, v, l]) => `<button class="chip" aria-pressed="true" data-rm="${k}" data-v="${esc(v)}" aria-label="Retirer le filtre ${esc(l)}">${esc(l)} ✕</button>`).join('')}</div>` : ''}
   ${list.length ? sortBar() + rowCards(list)
   : `<div class="empty-box"><p>Aucune sortie ne correspond à tous ces critères. Retirez un filtre pour voir plus d’idées.</p><button class="btn soft" data-go="#rechercher">Modifier la recherche</button></div>`}`;
@@ -1052,6 +1058,7 @@ function renderAbout() {
     <p class="sig">Mum in Paris</p>
     ${ABOUT.map(t => `<p>${esc(t)}</p>`).join('')}
     <a class="btn" href="https://www.instagram.com/mum_inparis/" target="_blank" rel="noopener">${ICON.insta}Suivre @mum_inparis</a>
+    <button class="link-btn" data-share style="margin-top:14px">${ICON.share}Partager le site</button>
     <p class="made">Parce que Paris, c’est à visiter en famille !</p>
   </div>`;
 }
@@ -1128,10 +1135,10 @@ function track() {
 async function share() {
   const m = location.hash.match(/^#sortie\/(.+)$/);
   const s = m && find(decodeURIComponent(m[1]));
-  const data = { title: s ? s.t + ' · Mum in Paris' : 'Mum in Paris', text: s ? 'Une sortie recommandée par @mum_inparis' : 'Les sorties en famille de @mum_inparis', url: location.href };
+  const data = { title: s ? s.t + ' · Mum in Paris' : 'Mum in Paris', text: s ? 'Une sortie recommandée par @mum_inparis' : 'Les sorties en famille à Paris de @mum_inparis 🤍', url: s ? location.href : location.origin + location.pathname };
   try { if (navigator.share) { await navigator.share(data); return; } }
   catch (e) { if (e && e.name === 'AbortError') return; }
-  try { await navigator.clipboard.writeText(location.href); toast('Lien copié'); }
+  try { await navigator.clipboard.writeText(data.url); toast('Lien copié'); }
   catch (e) { toast('Copiez le lien depuis la barre d’adresse'); }
 }
 
