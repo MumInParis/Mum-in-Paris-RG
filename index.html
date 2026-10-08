@@ -716,7 +716,12 @@ function distKm(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 function sortList(list) {
-  const r = sortList0(list);
+  let r = sortList0(list);
+  // Liste « Durée limitée » : les spectacles passent après les expos, ateliers…
+  if (F.duree.includes('temp') && location.hash === '#resultats') {
+    const isShow = x => /^(spectacle|theatre)$/.test(norm(x.type));
+    r = r.filter(x => !isShow(x)).concat(r.filter(isShow));
+  }
   return r.filter(s => !s.pause).concat(r.filter(s => s.pause));
 }
 function sortList0(list) {
