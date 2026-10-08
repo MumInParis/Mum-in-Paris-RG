@@ -554,10 +554,23 @@ function parseCSV(text) {
 const HEAD = h => norm(h).replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 // Remet en police normale les textes collés depuis Instagram (lettres « stylées » Unicode)
 const clean = v => String(v || '').normalize('NFKC').replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/\u00A0/g, ' ').trim();
+// Corrige à l'affichage les accents oubliés les plus fréquents (la feuille n'est pas modifiée)
+const ACCENTS = [
+  [/\bTheâtre\b/g, 'Théâtre'], [/\btheâtre\b/g, 'théâtre'], [/\bTheatre\b/g, 'Théâtre'], [/\btheatre\b/g, 'théâtre'],
+  [/\bThéatre\b/g, 'Théâtre'], [/\bthéatre\b/g, 'théâtre'],
+  [/\bHotel\b/g, 'Hôtel'], [/\bhotel\b/g, 'hôtel'],
+  [/\bChateau\b/g, 'Château'], [/\bchateau\b/g, 'château'],
+  [/\bChatelet\b/g, 'Châtelet'], [/\bEcole\b/g, 'École'], [/\becole\b/g, 'école'],
+  [/\bOpera\b/g, 'Opéra'], [/\bopera\b/g, 'opéra'],
+  [/\bJoaillers\b/g, 'Joailliers'], [/\bSuzanne Valdon\b/g, 'Suzanne Valadon'],
+  [/\boeil\b/g, 'œil'], [/\bcoeur\b/g, 'cœur'], [/\bCoeur\b/g, 'Cœur'], [/\boeuvre/g, 'œuvre'], [/\bOeuvre/g, 'Œuvre'],
+  [/(^|[.!?…]\s+)Ca\b/g, '$1Ça'], [/\btjs\b/g, 'toujours']
+];
+const fixText = v => /https?:|www\.|^-?\d+[.,]\d+\s*[;,]/.test(v) ? v : ACCENTS.reduce((t, [re, r]) => t.replace(re, r), v);
 function rowsToObjects(rows) {
   if (!rows.length) return [];
   const keys = rows[0].map(HEAD);
-  return rows.slice(1).map(r => { const o = {}; keys.forEach((k, i) => { const v = clean(r[i]); if (k && (!o[k] || v)) o[k] = o[k] && v ? o[k] : (o[k] || v); }); return o; }).filter(o => o.nom);
+  return rows.slice(1).map(r => { const o = {}; keys.forEach((k, i) => { const v = fixText(clean(r[i])); if (k && (!o[k] || v)) o[k] = o[k] && v ? o[k] : (o[k] || v); }); return o; }).filter(o => o.nom);
 }
 
 function parseGeo(v) {
