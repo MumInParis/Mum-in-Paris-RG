@@ -70,8 +70,11 @@ h2{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.1;margi
 .see-all{font-size:14px;font-weight:600;color:var(--pink-ink);text-decoration:none;background:none;border:0;cursor:pointer;padding:4px 0}
 
 /* Now cards */
-.rail{display:flex;gap:14px;overflow-x:auto;padding:4px 18px 10px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.rail{display:flex;gap:14px;overflow-x:auto;padding:4px 18px 10px;scroll-snap-type:x mandatory;scroll-padding-left:18px;scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
+.rail-dots{display:flex;justify-content:center;gap:6px;margin:2px 0 6px}
+.rail-dots i{width:6px;height:6px;border-radius:50%;background:#D9D3C8;transition:background .2s,width .2s}
+.rail-dots i.on{background:var(--ink);width:16px;border-radius:3px}
 .card{flex:0 0 72%;max-width:250px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-align:left;cursor:pointer;padding:0;position:relative}
 .card .pic{height:140px;position:relative}
 .card .pic svg{width:100%;height:100%;display:block}
@@ -313,6 +316,7 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .card .pic .eph-c{top:10px;left:10px;font-size:8.5px;padding:2px 6px}
 .row-card .ln-eph{color:var(--pink-ink);font-weight:600}
 .row-card .ln-eph svg{color:var(--pink)}
+.b-bientot{background:#2F5D50;color:#fff}
 .b-eph{background:transparent;border:1px solid var(--ink);color:var(--ink);display:inline-flex;align-items:center;gap:4px}
 .b-eph svg{width:12px;height:12px}
 </style>
@@ -423,6 +427,7 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <button class="see-all" data-go="#toutes">Voir tout</button>
   </div>
   <div class="rail" id="rail"></div>
+  <div class="rail-dots" id="rail-dots" aria-hidden="true"></div>
 </section>
 
 <section aria-labelledby="quick-t">
@@ -552,7 +557,7 @@ const clean = v => String(v || '').normalize('NFKC').replace(/[\u200B-\u200D\u20
 function rowsToObjects(rows) {
   if (!rows.length) return [];
   const keys = rows[0].map(HEAD);
-  return rows.slice(1).map(r => { const o = {}; keys.forEach((k, i) => o[k] = clean(r[i])); return o; }).filter(o => o.nom);
+  return rows.slice(1).map(r => { const o = {}; keys.forEach((k, i) => { const v = clean(r[i]); if (k && (!o[k] || v)) o[k] = o[k] && v ? o[k] : (o[k] || v); }); return o; }).filter(o => o.nom);
 }
 
 function parseGeo(v) {
@@ -620,8 +625,12 @@ const build = list => {
     const s = toSortie(o, i, used);
     s.photo = s.photos[0] || '';
     s.until = parseDate(o.jusquau || o.jusqu_au || o.date_de_fin || '');
-    s.lastDays = !!s.until && (s.until - t0) / 864e5 <= 7 && s.until >= t0;
-    s.soon = !!s.until && (s.until - t0) / 864e5 <= 31 && s.until >= t0;
+    // « À partir du » : date de début d'un événement
+    s.from = parseDate(o.a_partir_du || o.a_partir_de || o.date_de_debut || o.debut || '');
+    if (s.from && s.until && s.until < s.from) s.until.setFullYear(s.until.getFullYear() + 1);
+    s.upcoming = !!s.from && s.from > t0;
+    s.lastDays = !s.upcoming && !!s.until && (s.until - t0) / 864e5 <= 7 && s.until >= t0;
+    s.soon = !s.upcoming && !!s.until && (s.until - t0) / 864e5 <= 31 && s.until >= t0;
     [s.resa, s.resaLabel] = parseResa(o.reservation_requise || o.resa || o.reservation || '');
     return s;
   }).filter(s => !s.until || s.until >= t0);
@@ -657,10 +666,21 @@ function catArt(s) {
   return `<svg viewBox="0 0 250 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="250" height="140" fill="#EFEAE1"/><circle cx="125" cy="70" r="44" fill="${c}" opacity=".09"/><g transform="translate(95 40) scale(2.5)" fill="none" stroke="#141414" stroke-width="1.15" stroke-linejoin="round" stroke-linecap="round">${g}</g></svg>`;
 }
 const visual = s => (ART[s.art] || catArt(s)) + (s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '');
-const badgeHtml = s => s.pause ? `<span class="badge b-pause">En pause</span>` : s.lastDays ? `<span class="badge b-last">Derniers jours</span>` : s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
+const badgeHtml = s => s.pause ? `<span class="badge b-pause">En pause</span>` : s.upcoming ? `<span class="badge b-bientot">Bientôt</span>` : s.lastDays ? `<span class="badge b-last">Derniers jours</span>` : s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
 const HOURGLASS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M7 3.5h10M7 20.5h10M8 3.5v3a4 4 0 0 0 2 3.5l2 1.2 2-1.2a4 4 0 0 0 2-3.5v-3M8 20.5v-3a4 4 0 0 1 2-3.5l2-1.2 2 1.2a4 4 0 0 1 2 3.5v3"/></svg>';
 const MOIS_COURT = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 const fmtShort = d => d.getDate() + (d.getDate() === 1 ? 'er' : '') + ' ' + MOIS_COURT[d.getMonth()];
+// « Du 18 au 19 octobre » / « Du 30 oct. au 2 nov. » / « À partir du 18 octobre »
+const MOIS_LONG = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const dayTxt = d => d.getDate() + (d.getDate() === 1 ? 'er' : '');
+function rangeTxt(s, short) {
+  if (!s.from) return '';
+  const M = short ? MOIS_COURT : MOIS_LONG, a = s.from, b = s.until;
+  if (!b) return 'À partir du ' + dayTxt(a) + ' ' + M[a.getMonth()];
+  if (+a === +b) return 'Le ' + dayTxt(a) + ' ' + M[a.getMonth()];
+  if (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear()) return 'Du ' + dayTxt(a) + ' au ' + dayTxt(b) + ' ' + M[b.getMonth()];
+  return 'Du ' + dayTxt(a) + ' ' + M[a.getMonth()] + ' au ' + dayTxt(b) + ' ' + M[b.getMonth()];
+}
 // Étiquette « Durée limitée » : toute sortie qui a une date dans « Jusqu'au »
 let EPH_STYLE = 'C';
 const ephTag = s => s.until && EPH_STYLE === 'A' ? `<span class="eph eph-a">${HOURGLASS}Durée limitée</span>` : '';
@@ -696,7 +716,12 @@ function renderHome() {
   if (STATE === 'loading' && !SORTIES.length) { rail.innerHTML = `<div class="empty-box" style="flex:1"><p>Chargement des sorties…</p></div>`; return; }
   if (STATE === 'error' && !SORTIES.length) { rail.innerHTML = `<div class="empty-box" style="flex:1"><p>Les sorties n’ont pas pu être chargées. Vérifiez votre connexion puis rechargez la page.</p></div>`; return; }
   const feat = SORTIES.filter(s => s.featured && !s.pause);
-  const list = feat.length ? feat : SORTIES.filter(s => !s.pause).slice(0, 6);
+  const base = feat.length ? feat : SORTIES.filter(s => !s.pause).slice(0, 6);
+  // Ordre du carrousel : d'abord les sorties à durée limitée (celles qui finissent le plus tôt en premier,
+  // activités et expos avant les spectacles), puis les événements à venir, puis le reste
+  const isShow = x => /^(spectacle|theatre)$/.test(norm(x.type));
+  const rank = x => x.until && !x.upcoming ? (isShow(x) ? 1 : 0) : x.upcoming ? 2 : 3;
+  const list = base.slice().sort((a, b) => rank(a) - rank(b) || (rank(a) < 2 ? a.until - b.until : 0));
   rail.innerHTML = list.length ? list.map(s => `
     <article class="card" tabindex="0" role="link" aria-label="Voir la fiche ${esc(s.t)}" data-open="${esc(s.id)}">
       <div class="pic">${visual(s)}${badgeHtml(s)}${s.until ? `<span class="eph eph-c">Durée limitée</span>` : ''}
@@ -704,7 +729,39 @@ function renderHome() {
       </div>
       <div class="body"><h3>${esc(s.t)}</h3><div class="facts">${factsHtml(s)}</div></div>
     </article>`).join('') : `<div class="empty-box" style="flex:1"><p>Les premières sorties arrivent très vite.</p></div>`;
+  railDots();
 }
+/* Carrousel « En ce moment » : petits points + défilement doux automatique (s'arrête dès qu'on touche) */
+let railTouched = false;
+function railDots() {
+  const rail = document.getElementById('rail'), dots = document.getElementById('rail-dots');
+  if (!rail || !dots) return;
+  const n = rail.querySelectorAll('.card').length;
+  dots.innerHTML = n > 1 ? Array.from({ length: n }, (_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('') : '';
+}
+function railIndex(rail) {
+  const cards = [...rail.querySelectorAll('.card')];
+  let best = 0, d = Infinity;
+  cards.forEach((c, i) => { const x = Math.abs(c.offsetLeft - rail.offsetLeft - 18 - rail.scrollLeft); if (x < d) { d = x; best = i; } });
+  return best;
+}
+(function initRail() {
+  const rail = document.getElementById('rail'), dots = document.getElementById('rail-dots');
+  if (!rail) return;
+  rail.addEventListener('scroll', () => {
+    const i = railIndex(rail);
+    dots && dots.querySelectorAll('i').forEach((d, k) => d.classList.toggle('on', k === i));
+  }, { passive: true });
+  ['touchstart', 'pointerdown', 'wheel'].forEach(ev => rail.addEventListener(ev, () => { railTouched = true; }, { passive: true }));
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  setInterval(() => {
+    if (railTouched || document.hidden || document.body.dataset.view !== 'home') return;
+    const cards = rail.querySelectorAll('.card');
+    if (cards.length < 2) return;
+    const next = (railIndex(rail) + 1) % cards.length;
+    rail.scrollTo({ left: cards[next].offsetLeft - cards[0].offsetLeft, behavior: 'smooth' });
+  }, 4500);
+})();
 
 /* ---------- Tri ---------- */
 let SORT = 'new', USERPOS = null;
@@ -745,7 +802,7 @@ function compactRow(s, extra, end) {
     <button class="row-card${s.pause ? ' paused' : ''}" data-open="${esc(s.id)}">
       <span class="thumb">${visual(s)}${ephCorner(s)}</span>
       <span class="rc-body">${badgeHtml(s) || ephTag(s) ? `<span class="rc-tags">${badgeHtml(s)}${ephTag(s)}</span>` : ''}<h3>${esc(s.t)}</h3>
-        ${end ? `<span class="ln ln-end">${ICON.cal}${esc(end)}</span>` : ephLine(s)}
+        ${end ? `<span class="ln ln-end">${ICON.cal}${esc(end)}</span>` : s.from ? `<span class="ln ln-end">${ICON.cal}${esc(rangeTxt(s, true))}</span>` : ephLine(s)}
         ${s.type ? `<span class="ln">${ICON.star}${esc(s.type)}</span>` : ''}
         ${l2 ? `<span class="ln">${ICON.price}${esc(l2)}</span>` : ''}
         ${extra || l3 ? `<span class="ln">${ICON.pin}${extra ? extra + (l3 ? ' · ' : '') : ''}${esc(l3)}</span>` : ''}
@@ -779,7 +836,7 @@ function renderAll() {
 }
 
 function renderDetail(s) {
-  const facts = [[ICON.age, s.age], [ICON.ticket, s.price], [ICON.clock, s.duration], [ICON.metro, s.metro], [ICON.cal, s.until ? 'Jusqu’au ' + fmtDate(s.until) : ''], [ICON.resa, s.resaLabel]]
+  const facts = [[ICON.age, s.age], [ICON.ticket, s.price], [ICON.clock, s.duration], [ICON.metro, s.metro], [ICON.cal, s.from ? rangeTxt(s) : s.until ? 'Jusqu’au ' + fmtDate(s.until) : ''], [ICON.resa, s.resaLabel]]
     .filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
   const url = safeUrl(s.url);
   return `
@@ -852,7 +909,7 @@ function queryWords(q) {
   return simple(q).split(' ').filter(w => w && !STOP.has(w)).map(stem);
 }
 function searchText(s) {
-  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir pas encore fait' : '') + (s.bday ? ' anniversaire anniversaires anniv' : '') + ' ' + (s.resaLabel || '') + (s.lastDays ? ' derniers jours' : '') + (s.until ? ' ephemere temporaire duree limitee' : ' permanent') + ' ' + (s.bdayNote || '');
+  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir pas encore fait' : '') + (s.bday ? ' anniversaire anniversaires anniv' : '') + ' ' + (s.resaLabel || '') + (s.lastDays ? ' derniers jours' : '') + (s.upcoming ? ' bientot a venir prochainement' : '') + (s.until ? ' ephemere temporaire duree limitee' : ' permanent') + ' ' + (s.bdayNote || '');
   const words = simple([s.t, s.type, badge, s.age, s.price, s.where, s.place, s.metro, s.duration, s.why, s.tip].join(' ')).split(' ');
   return ' ' + words.map(stem).join(' ') + ' ' + words.join(' ') + ' ';
 }
