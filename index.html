@@ -221,6 +221,8 @@ body[data-view="home"] #view{display:none}
 .map-cta .btn{width:100%;justify-content:center}
 .map-wrap{position:relative;margin:8px 12px 0;border-radius:18px;overflow:hidden;border:1px solid var(--line);height:calc(100vh - 230px);height:calc(100dvh - 230px);min-height:340px;background:#EEE8E2}
 #map{position:absolute;inset:0}
+.fav-map{height:calc(100vh - 290px);height:calc(100dvh - 290px)}
+.chip svg{width:15px;height:15px;vertical-align:-3px;margin-right:5px}
 .map-msg{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink-soft);font-size:15px}
 .pin{width:34px;height:34px;display:grid;place-items:center;filter:drop-shadow(0 2px 3px rgba(30,42,90,.35))}
 .pin svg{width:34px;height:34px}
@@ -290,6 +292,8 @@ h2{font-weight:500;letter-spacing:-.5px}
 .q{font-size:12px;padding:6px 0}
 .q .disc svg{width:25px;height:25px}
 .q-last .disc{border-color:var(--pink)!important;color:var(--pink)!important;background:var(--pink-soft)!important}
+:root{--temp:#B8862B;--temp-bg:#F5ECDC}
+.q-temp .disc{border-color:var(--temp)!important;color:var(--temp)!important;background:var(--temp-bg)!important}
 .row-card .ln-end{color:var(--pink-ink);font-weight:600}
 .d-hero.no-photo{height:210px}
 html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -298,6 +302,19 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @keyframes ride{from{transform:translateX(-50px)}to{transform:translateX(430px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.bike-ride{animation:none;transform:translateX(190px)}.bike-ride .wheel{animation:none}}
+
+.rc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:2px}
+.rc-tags .badge{margin-bottom:0}
+.eph{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.eph svg{width:11px;height:11px}
+.eph-a{border:1px solid var(--ink);color:var(--ink);border-radius:3px;padding:1px 7px;align-self:flex-start}
+.eph-c{position:absolute;top:6px;left:6px;background:rgba(246,243,238,.94);color:var(--ink);border-radius:3px;padding:2px 6px;font-size:9px;letter-spacing:.5px;z-index:2}
+.row-card .thumb .eph-c{left:4px;top:4px;font-size:7px;letter-spacing:.3px;padding:1.5px 4px;font-weight:600;line-height:1.2}
+.card .pic .eph-c{top:10px;left:10px;font-size:8.5px;padding:2px 6px}
+.row-card .ln-eph{color:var(--pink-ink);font-weight:600}
+.row-card .ln-eph svg{color:var(--pink)}
+.b-eph{background:transparent;border:1px solid var(--ink);color:var(--ink);display:inline-flex;align-items:center;gap:4px}
+.b-eph svg{width:12px;height:12px}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -412,7 +429,7 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <h2 id="quick-t" class="sr">Accès rapides</h2>
   <div class="quick">
     <button class="q q-pink" data-quick="free"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/></svg></span>Gratuit</button>
-    <button class="q q-sky" data-quick="rain"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 7.5 3.8 3.8 0 0 1 17.5 15z"/><path d="M8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5"/></svg></span>Quand il pleut</button>
+    <button class="q q-temp" data-quick="temp"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><rect x="3.5" y="5" width="13" height="13" rx="2"/><path d="M3.5 9.5h13M7.5 3v4M12.5 3v4"/><circle cx="17" cy="16.5" r="4.5" fill="var(--temp-bg)"/><path d="M17 14.3v2.4l1.6 1"/></svg></span>Durée limitée</button>
     <button class="q q-butter" data-quick="age:6-8"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="13" r="7.5"/><path d="M9 4.5q3-2 4 1M9.3 12h.01M14.7 12h.01M9.5 15.5q2.5 2 5 0"/></svg></span>6–8 ans</button>
     <button class="q q-mint" data-quick="type:Manger"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M7 3v6.5a2 2 0 0 0 4 0V3M9 3v18M17 21V3c-2.2 1.3-3.2 4-3.2 7.5H17"/></svg></span>Où manger</button>
     <button class="q q-last" data-quick="soon"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M7 3.5h10M7 20.5h10M8 3.5v3a4 4 0 0 0 2 3.5l2 1.2 2-1.2a4 4 0 0 0 2-3.5v-3M8 20.5v-3a4 4 0 0 1 2-3.5l2-1.2 2 1.2a4 4 0 0 1 2 3.5v3"/><path d="M10 18h4" stroke-width="2.4"/></svg></span>Dernière chance</button>
@@ -641,6 +658,14 @@ function catArt(s) {
 }
 const visual = s => (ART[s.art] || catArt(s)) + (s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '');
 const badgeHtml = s => s.pause ? `<span class="badge b-pause">En pause</span>` : s.lastDays ? `<span class="badge b-last">Derniers jours</span>` : s.aVoir ? `<span class="badge b-avoir">Pas encore fait</span>` : BADGES[s.badge] ? `<span class="badge ${BADGES[s.badge][0]}">${BADGES[s.badge][1]}</span>` : '';
+const HOURGLASS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M7 3.5h10M7 20.5h10M8 3.5v3a4 4 0 0 0 2 3.5l2 1.2 2-1.2a4 4 0 0 0 2-3.5v-3M8 20.5v-3a4 4 0 0 1 2-3.5l2-1.2 2 1.2a4 4 0 0 1 2 3.5v3"/></svg>';
+const MOIS_COURT = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+const fmtShort = d => d.getDate() + (d.getDate() === 1 ? 'er' : '') + ' ' + MOIS_COURT[d.getMonth()];
+// Étiquette « Durée limitée » : toute sortie qui a une date dans « Jusqu'au »
+let EPH_STYLE = 'C';
+const ephTag = s => s.until && EPH_STYLE === 'A' ? `<span class="eph eph-a">${HOURGLASS}Durée limitée</span>` : '';
+const ephLine = s => s.until && EPH_STYLE === 'B' ? `<span class="ln ln-eph">${HOURGLASS}Éphémère · jusqu’au ${fmtShort(s.until)}</span>` : '';
+const ephCorner = s => s.until && EPH_STYLE === 'C' ? `<span class="eph eph-c">Durée limitée</span>` : '';
 const factsHtml = s => [[ICON.age, s.age], [ICON.pin, s.where], [ICON.price, s.price]].filter(f => f[1]).map(f => `<span>${f[0]}${esc(f[1])}</span>`).join('');
 
 let favs = [];
@@ -674,7 +699,7 @@ function renderHome() {
   const list = feat.length ? feat : SORTIES.filter(s => !s.pause).slice(0, 6);
   rail.innerHTML = list.length ? list.map(s => `
     <article class="card" tabindex="0" role="link" aria-label="Voir la fiche ${esc(s.t)}" data-open="${esc(s.id)}">
-      <div class="pic">${visual(s)}${badgeHtml(s)}
+      <div class="pic">${visual(s)}${badgeHtml(s)}${s.until ? `<span class="eph eph-c">Durée limitée</span>` : ''}
         <button class="fav" aria-label="Ajouter ${esc(s.t)} aux favoris" aria-pressed="${favs.includes(s.id)}" data-id="${esc(s.id)}">${ICON.heart}</button>
       </div>
       <div class="body"><h3>${esc(s.t)}</h3><div class="facts">${factsHtml(s)}</div></div>
@@ -713,9 +738,9 @@ function compactRow(s, extra, end) {
   const l3 = [s.place, s.where].filter(Boolean).join(' · ');
   return `
     <button class="row-card${s.pause ? ' paused' : ''}" data-open="${esc(s.id)}">
-      <span class="thumb">${visual(s)}</span>
-      <span class="rc-body">${badgeHtml(s)}<h3>${esc(s.t)}</h3>
-        ${end ? `<span class="ln ln-end">${ICON.cal}${esc(end)}</span>` : ''}
+      <span class="thumb">${visual(s)}${ephCorner(s)}</span>
+      <span class="rc-body">${badgeHtml(s) || ephTag(s) ? `<span class="rc-tags">${badgeHtml(s)}${ephTag(s)}</span>` : ''}<h3>${esc(s.t)}</h3>
+        ${end ? `<span class="ln ln-end">${ICON.cal}${esc(end)}</span>` : ephLine(s)}
         ${s.type ? `<span class="ln">${ICON.star}${esc(s.type)}</span>` : ''}
         ${l2 ? `<span class="ln">${ICON.price}${esc(l2)}</span>` : ''}
         ${extra || l3 ? `<span class="ln">${ICON.pin}${extra ? extra + (l3 ? ' · ' : '') : ''}${esc(l3)}</span>` : ''}
@@ -763,7 +788,7 @@ function renderDetail(s) {
       </div>
     </div>
     <div class="d-body">
-      <div class="tags">${s.type ? `<span class="badge b-type">${esc(s.type)}</span>` : ''}${badgeHtml(s)}</div>
+      <div class="tags">${s.type ? `<span class="badge b-type">${esc(s.type)}</span>` : ''}${badgeHtml(s)}${s.until ? `<span class="badge b-eph">${HOURGLASS}Durée limitée</span>` : ''}</div>
       <h1>${esc(s.t)}</h1>
       ${s.where || s.place ? `<p class="loc">${ICON.pin}${esc([s.where, s.place].filter(Boolean).join(', '))}</p>` : ''}
       ${s.geo ? `<a class="d-map" href="#carte/${encodeURIComponent(s.id)}">${ICON.map}Voir sur la carte</a>` : ''}
@@ -788,13 +813,14 @@ const GROUPS = [
   { key: 'age', title: 'Pour quel âge ?', icon: ICON.age, opts: [['0-3', '0–3 ans'], ['4-6', '4–6 ans'], ['7-10', '7–10 ans'], ['10+', '10 ans et +']] },
   { key: 'budget', title: 'Quel budget ?', icon: ICON.price, opts: [['free', 'Gratuit'], ['10', '≤ 10 €'], ['20', '10–20 €'], ['20+', '20 € et +']] },
   { key: 'type', title: 'Quel type ?', icon: ICON.star, opts: null },
+  { key: 'duree', title: 'Quand en profiter ?', icon: ICON.cal, opts: [['perm', 'Toute l’année'], ['temp', 'Durée limitée']] },
   { key: 'occ', title: 'Une occasion ?', icon: ICON.cake, opts: [['anniv', 'Organisation d’anniversaire']] },
   { key: 'resa', title: 'Réservation ?', icon: ICON.resa, opts: [['sans', 'Sans réservation'], ['last', 'Derniers jours']] },
   { key: 'ou', title: 'Où ?', icon: ICON.pin, opts: [['1-5', 'Paris 1–5'], ['6-10', 'Paris 6–10'], ['11-20', 'Paris 11–20'], ['banlieue', 'Proche banlieue'], ['metro', 'Accessible en métro']] }
 ];
 const LABELS = { rain: 'Quand il pleut', '6-8': '6–8 ans', 'Théâtre': 'Théâtre', 'Theatre': 'Théâtre' };
-let F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false, soon: false };
-const resetF = () => { F = { q: '', age: [], budget: [], type: [], occ: [], resa: [], ou: [], rain: false, soon: false }; };
+let F = { q: '', age: [], budget: [], type: [], duree: [], occ: [], resa: [], ou: [], rain: false, soon: false };
+const resetF = () => { F = { q: '', age: [], budget: [], type: [], duree: [], occ: [], resa: [], ou: [], rain: false, soon: false }; };
 
 function ageRange(s) {
   const t = norm(s.age).replace(/(\d+)\s*mois/g, m => String(Math.floor(parseInt(m, 10) / 12)) + ' ans');
@@ -821,7 +847,7 @@ function queryWords(q) {
   return simple(q).split(' ').filter(w => w && !STOP.has(w)).map(stem);
 }
 function searchText(s) {
-  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir pas encore fait' : '') + (s.bday ? ' anniversaire anniversaires anniv' : '') + ' ' + (s.resaLabel || '') + (s.lastDays ? ' derniers jours' : '') + ' ' + (s.bdayNote || '');
+  const badge = (BADGES[s.badge] ? BADGES[s.badge][1] : '') + (s.aVoir ? ' a voir pas encore fait' : '') + (s.bday ? ' anniversaire anniversaires anniv' : '') + ' ' + (s.resaLabel || '') + (s.lastDays ? ' derniers jours' : '') + (s.until ? ' ephemere temporaire duree limitee' : ' permanent') + ' ' + (s.bdayNote || '');
   const words = simple([s.t, s.type, badge, s.age, s.price, s.where, s.place, s.metro, s.duration, s.why, s.tip].join(' ')).split(' ');
   return ' ' + words.map(stem).join(' ') + ' ' + words.join(' ') + ' ';
 }
@@ -848,6 +874,7 @@ function matches(s) {
     if (!zones.some(k => k === '1-5' ? n >= 1 && n <= 5 : k === '6-10' ? n >= 6 && n <= 10 : k === '11-20' ? n >= 11 && n <= 20 : n == null && !!s.where)) return false;
   }
   if (F.ou.includes('metro') && !s.metro) return false;
+  if (F.duree.length && !((F.duree.includes('perm') && !s.until) || (F.duree.includes('temp') && !!s.until))) return false;
   if (F.occ.includes('anniv') && !s.bday) return false;
   if (F.resa.includes('sans') && s.resa !== 'sans') return false;
   if (F.resa.includes('last') && !s.lastDays) return false;
@@ -910,6 +937,7 @@ function quick(q) {
   else if (q === 'rain') F.rain = true;
   else if (q === 'metro') F.ou = ['metro'];
   else if (q === 'soon') F.soon = true;
+  else if (q === 'temp') F.duree = ['temp'];
   else if (q.startsWith('age:')) F.age = [q.slice(4)];
   else if (q === 'type:Spectacle') F.type = ['Spectacle', 'Théâtre', 'Theatre'];
   else if (q === 'type:Manger') F.type = ['Restaurant', 'Goûter', 'Gouter', 'Manger'];
@@ -932,11 +960,20 @@ document.addEventListener('input', e => {
 });
 
 /* ---------- Mes favoris ---------- */
+let FAV_VIEW = 'list';
 function renderFavs() {
   const list = SORTIES.filter(s => favs.includes(s.id));
+  const onMap = list.filter(s => s.geo).length;
+  const toggle = list.length ? `<div class="sortbar" role="group" aria-label="Affichage">
+    <button class="chip" data-favview="list" aria-pressed="${FAV_VIEW === 'list'}">Liste</button>
+    <button class="chip" data-favview="map" aria-pressed="${FAV_VIEW === 'map'}">${ICON.map}Carte</button></div>` : '';
+  const body = FAV_VIEW === 'map'
+    ? `<div class="map-wrap fav-map"><div id="map" role="region" aria-label="Carte de mes favoris"></div><div class="map-msg" id="map-msg">Chargement de la carte…</div></div>
+       ${onMap < list.length ? `<p class="map-note">${list.length - onMap} favori${list.length - onMap > 1 ? 's' : ''} pas encore placé${list.length - onMap > 1 ? 's' : ''} sur la carte.</p>` : ''}`
+    : `<div class="list">${list.map(s => compactRow(s)).join('')}</div>`;
   return `<div class="v-head"><button class="icon-btn" data-go="" aria-label="Retour à l’accueil">${ICON.back}</button><h1>Mes favoris</h1></div>
   ${list.length ? `<p class="v-sub">${list.length} sortie${list.length > 1 ? 's' : ''} mise${list.length > 1 ? 's' : ''} de côté. Vos favoris sont enregistrés sur ce téléphone.</p>
-  <div class="list">${list.map(s => compactRow(s)).join('')}</div>`
+  ${toggle}${body}`
   : `<div class="empty-box" style="margin-top:12px"><p>Touchez le cœur d’une sortie pour la retrouver ici.</p><button class="btn soft" data-go="#toutes">Voir toutes les sorties</button></div>`}`;
 }
 
@@ -997,10 +1034,10 @@ function mapLegend() {
   return `<div class="legend" role="group" aria-label="Afficher sur la carte">${Object.entries(PIN_CATS).filter(([k]) => present.has(k)).map(([k, c]) =>
     `<button class="leg" data-pincat="${k}" aria-pressed="${!mapHidden.has(k)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z" fill="${c.color}"/>${c.glyph}</svg>${c.label}</button>`).join('')}</div>`;
 }
-async function drawMap(focusId) {
+async function drawMap(focusId, onlyIds) {
   const msg = document.getElementById('map-msg');
-  const pts = SORTIES.filter(s => s.geo);
-  if (!pts.length) { msg.textContent = 'Les sorties apparaîtront ici dès que leurs coordonnées seront renseignées.'; return; }
+  const pts = SORTIES.filter(s => s.geo && (!onlyIds || onlyIds.includes(s.id)));
+  if (!pts.length) { msg.textContent = onlyIds ? 'Vos favoris apparaîtront ici dès qu’ils auront une adresse sur la carte.' : 'Les sorties apparaîtront ici dès que leurs coordonnées seront renseignées.'; return; }
   try { await loadLeaflet(); } catch (e) { msg.textContent = 'La carte n’a pas pu être chargée. Vérifiez votre connexion.'; return; }
   if (!document.getElementById('map')) return;
   msg.remove();
@@ -1105,7 +1142,7 @@ function route() {
   }
   else if (h === 'toutes') show('all', renderAll());
   else if (h === 'rechercher') show('filters', renderFilters());
-  else if (h === 'favoris') show('favs', renderFavs());
+  else if (h === 'favoris') { show('favs', renderFavs()); if (FAV_VIEW === 'map' && document.getElementById('map')) drawMap(null, favs); }
   else if (h === 'idee') show('idea', renderIdea());
   else if (h === 'coups-de-coeur') show('coeur', renderCoeur());
   else if (h === 'carte' || (m = h.match(/^carte\/(.+)$/))) { const fid = m && m[1] ? decodeURIComponent(m[1]) : null; show('map', renderMap(fid)); drawMap(fid); }
@@ -1166,6 +1203,8 @@ document.addEventListener('click', e => {
     else location.hash = go.dataset.go;
     return;
   }
+  const fv = e.target.closest('[data-favview]');
+  if (fv) { FAV_VIEW = fv.dataset.favview; route(); return; }
   if (e.target.closest('[data-share]')) { share(); return; }
   const tab = e.target.closest('[data-tab]');
   if (tab) { location.hash = ({ search: 'rechercher', favs: 'favoris', idea: 'idee', coeur: 'coups-de-coeur' })[tab.dataset.tab] || ''; return; }
