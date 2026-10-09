@@ -466,7 +466,6 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
   </div>
 </section>
 
-<div id="vac-banner"></div>
 <div class="map-cta"><button class="btn soft" data-go="#carte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></svg>La carte des sorties</button></div>
 
 <section aria-labelledby="picks-t">
@@ -1226,22 +1225,10 @@ async function loadVacances() {
 }
 function vacTitle() { const p = VAC.find(v => v.period); return p ? p.period : 'Spécial vacances'; }
 function renderVacBanner() {
+  // Pendant les vacances : seule la bulle « Vacances scolaires » apparaît sur l'accueil
   const qb = document.querySelector('.q-vac'), qw = document.getElementById('quick');
   if (qb) qb.hidden = !VAC.length;
   if (qw) qw.classList.toggle('quick-6', !!VAC.length);
-  const el = document.getElementById('vac-banner');
-  if (!el) return;
-  if (!VAC.length) { el.innerHTML = ''; return; }
-  const top = VAC.slice(0, 4);
-  el.innerHTML = `<section class="vac-home" aria-labelledby="vac-t">
-    <div class="sec-head"><h2 id="vac-t">${esc(vacTitle())}</h2>${VAC.length > top.length ? `<button class="see-all" data-go="#vacances">Voir tout</button>` : ''}</div>
-    <div class="vac-box">
-      <p class="vac-intro">${VAC_ART}<span>${VAC.length} lieu${VAC.length > 1 ? 'x' : ''} avec une programmation spéciale vacances : activités et animations pour les familles</span></p>
-      <ul class="vac-list">${top.map(v => `<li class="vac-item">
-        <div class="vac-txt"><h3>${esc(v.t)}</h3>${v.what ? `<p>${esc(v.what)}</p>` : ''}</div>
-        ${v.url ? `<a class="vac-link" href="${esc(v.url)}" target="_blank" rel="noopener">Voir ↗</a>` : ''}</li>`).join('')}</ul>
-      ${VAC.length > top.length ? `<button class="btn soft vac-all" data-go="#vacances">Voir les ${VAC.length} propositions</button>` : ''}
-    </div></section>`;
 }
 function renderVacances() {
   const cats = [...new Set(VAC.map(v => v.cat || ''))];
