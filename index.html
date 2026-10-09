@@ -356,6 +356,8 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .rail.compact .badge{font-size:10px;padding:3px 8px;left:8px;bottom:8px}
 .rail.compact .fav{transform:scale(.85);transform-origin:top right}
 .rail.compact .eph-c{top:7px!important;left:7px!important;font-size:8px!important;padding:2px 5px!important}
+.coffee{margin-top:26px;padding-top:20px;border-top:1px solid var(--line);text-align:center}
+.coffee p{font-family:var(--sans,inherit);font-size:14px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -1205,6 +1207,9 @@ const ABOUT_DEFAULT = [
   'Les sorties mentionnées ici ont été faites par nous, en famille, avec des copains – sauf indication contraire.'
 ];
 let ABOUT = ABOUT_DEFAULT;
+// Lien « Offrez-moi un café » : à coller dans l'onglet « À propos » (ex. https://ko-fi.com/muminparis)
+let COFFEE_URL = '';
+const isCoffee = t => /(ko-fi\.com|buymeacoffee\.com|tipeee\.com|paypal\.me|lydia)/i.test(t);
 function renderAbout() {
   return `<div class="v-head"><button class="icon-btn" data-go="" aria-label="Retour à l’accueil">${ICON.back}</button><h1>À propos</h1></div>
   <div class="about">
@@ -1212,6 +1217,7 @@ function renderAbout() {
     ${ABOUT.map(t => `<p>${esc(t)}</p>`).join('')}
     <a class="btn" href="https://www.instagram.com/mum_inparis/" target="_blank" rel="noopener">${ICON.insta}Suivre @mum_inparis</a>
     <button class="link-btn" data-share style="margin-top:14px">${ICON.share}Partager le site</button>
+    ${COFFEE_URL ? `<div class="coffee"><p>Ce guide est gratuit et je l'enrichis sur mon temps libre. S'il vous rend service, vous pouvez me soutenir 🤍</p><a class="btn soft" href="${esc(COFFEE_URL)}" target="_blank" rel="noopener">☕ Offrez-moi un café</a></div>` : ''}
     <p class="made">Parce que Paris, c’est à visiter en famille !</p>
   </div>`;
 }
@@ -1271,7 +1277,13 @@ async function loadAbout() {
     const text = await res.text();
     const paras = parseCSV(text).map(r => clean(r[0])).filter(Boolean);
     // Si l'onglet n'existe pas, Google renvoie le premier onglet : on l'ignore.
-    if (paras.length && norm(paras[0]) !== 'nom') { ABOUT = paras; if (location.hash === '#a-propos') route(); }
+    if (paras.length && norm(paras[0]) !== 'nom') {
+      const c = paras.find(isCoffee);
+      if (c) COFFEE_URL = fixUrl((c.match(/(https?:\/\/)?\S*(ko-fi\.com|buymeacoffee\.com|tipeee\.com|paypal\.me|lydia)\S*/i) || [''])[0]);
+      const text = paras.filter(t => !isCoffee(t));
+      if (text.length) ABOUT = text;
+      if (location.hash === '#a-propos') route();
+    }
   } catch (e) {}
 }
 
