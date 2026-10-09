@@ -259,7 +259,7 @@ h2{font-weight:500;letter-spacing:-.5px}
 .card h3,.d-body h1{font-weight:500}
 .search label{border-radius:6px;border-color:var(--ink);box-shadow:none}
 .q .disc{background:transparent!important;border:1px solid var(--ink);color:var(--ink)!important}
-.q:first-child .disc{border-color:var(--pink);color:var(--pink)!important}
+.q-pink .disc{border-color:var(--pink)!important;color:var(--pink)!important}
 .q{font-weight:500}
 .btn{background:var(--ink);border-radius:6px;font-weight:600;letter-spacing:.2px}
 .btn.soft{background:transparent;color:var(--ink);border:1px solid var(--ink)}
@@ -320,6 +320,29 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .b-bientot{background:#2F5D50;color:#fff}
 .b-eph{background:transparent;border:1px solid var(--ink);color:var(--ink);display:inline-flex;align-items:center;gap:4px}
 .b-eph svg{width:12px;height:12px}
+
+.vac-home{margin:6px 0 22px}
+.vac-box{margin:0 18px;background:#F5ECDC;border-radius:16px;padding:14px 16px 10px}
+.vac-intro{display:flex;align-items:center;gap:12px;margin:0 0 4px;font-size:13.5px;color:var(--ink-soft);line-height:1.35}
+.vac-intro svg{width:44px;height:44px;border-radius:10px;flex:none}
+.vac-box .vac-list{padding:0}
+.vac-box .vac-item{border-bottom:1px solid rgba(20,20,20,.12);padding:11px 0}
+.vac-box .vac-item:last-child{border-bottom:0}
+.vac-box .vac-link{background:var(--surface)}
+.vac-all{width:100%;margin:6px 0 6px}
+.vac-cat{font-family:var(--serif);font-weight:500;font-size:22px;margin:22px 18px 8px}
+.vac-list{list-style:none;margin:0;padding:0 18px;display:flex;flex-direction:column}
+.vac-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.vac-txt{flex:1;min-width:0}
+.vac-txt h3{font-size:16px;font-weight:700;margin:0 0 3px}
+.vac-txt p{margin:0 0 4px;font-size:14px;color:var(--ink);line-height:1.4}
+.vac-meta{font-size:12.5px;color:var(--ink-soft)}
+.vac-link{flex:none;border:1px solid var(--ink);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;white-space:nowrap}
+.vac-note{font-size:12.5px;color:var(--ink-soft);text-align:center;margin:16px 18px 0}
+.q-vac .disc{border-color:#2C6E8F!important;color:#2C6E8F!important;background:#E3EEF3!important}
+.quick.quick-6{display:flex;overflow-x:auto;gap:2px;padding:0 6px;scrollbar-width:none;scroll-snap-type:x proximity}
+.quick.quick-6::-webkit-scrollbar{display:none}
+.quick.quick-6 .q{flex:0 0 19%;scroll-snap-align:start}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -433,7 +456,8 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 <section aria-labelledby="quick-t">
   <h2 id="quick-t" class="sr">Accès rapides</h2>
-  <div class="quick">
+  <div class="quick" id="quick">
+    <button class="q q-vac" data-go="#vacances" hidden><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/><rect x="3.5" y="7" width="17" height="13.5" rx="2"/><path d="M3.5 13.5h17"/><path d="M8 13.5v3.5M16 13.5v3.5"/><rect x="7" y="16" width="2" height="2" rx=".4"/><rect x="15" y="16" width="2" height="2" rx=".4"/></svg></span>Vacances scolaires</button>
     <button class="q q-pink" data-quick="free"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/></svg></span>Gratuit</button>
     <button class="q q-temp" data-quick="temp"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><rect x="3.5" y="5" width="13" height="13" rx="2"/><path d="M3.5 9.5h13M7.5 3v4M12.5 3v4"/><circle cx="17" cy="16.5" r="4.5" fill="var(--temp-bg)"/><path d="M17 14.3v2.4l1.6 1"/></svg></span>Durée limitée</button>
     <button class="q q-butter" data-quick="age:6-8"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="13" r="7.5"/><path d="M9 4.5q3-2 4 1M9.3 12h.01M14.7 12h.01M9.5 15.5q2.5 2 5 0"/></svg></span>6–8 ans</button>
@@ -442,6 +466,7 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
   </div>
 </section>
 
+<div id="vac-banner"></div>
 <div class="map-cta"><button class="btn soft" data-go="#carte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></svg>La carte des sorties</button></div>
 
 <section aria-labelledby="picks-t">
@@ -1175,6 +1200,66 @@ function renderAbout() {
     <p class="made">Parce que Paris, c’est à visiter en famille !</p>
   </div>`;
 }
+/* ---------- Spécial vacances (onglet « Vacances » de la feuille) ---------- */
+let VAC = [];
+const VAC_ART = '<svg viewBox="0 0 72 72" aria-hidden="true"><rect width="72" height="72" fill="#F5ECDC"/><circle cx="50" cy="22" r="9" fill="#E9B949"/><path d="M8 52q14-8 28 0t28 0v20H8z" fill="#BFD7E3"/><path d="M22 52V30" stroke="#141414" stroke-width="1.6"/><path d="M22 30q-12 1-14 9q8-6 14-5q-4 4-4 10q6-6 4-14q6 2 10 8q-1-8-10-9q8-4 14-2q-6-6-14 3" fill="#2F5D50"/></svg>';
+async function loadVacances() {
+  if (!SHEET_CSV_URL) return;
+  try {
+    const url = SHEET_CSV_URL.replace(/([?&])sheet=[^&]*/, '$1sheet=' + encodeURIComponent('Vacances'));
+    const res = await fetch(url + '&t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    // Si l'onglet n'existe pas, Google renvoie le premier onglet (Sorties) : on l'ignore.
+    const head = (rows[0] || []).map(HEAD);
+    if (!head.includes('nom') || head.includes('pourquoi_jaime') || head.includes('coordonnees')) return;
+    VAC = rowsToObjects(rows).map(o => ({
+      t: o.nom, what: o.proposition || o.ce_quils_proposent || o.activite || o.description || '',
+      age: o.age || '', where: o.arrondissement || o.lieu || '', cat: o.categorie || o.type || '',
+      period: o.periode || o.dates || o.vacances || '',
+      url: fixUrl(o.lien || o.lien_de_reservation || ''),
+      show: o.afficher === undefined ? true : /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.afficher))
+    })).filter(v => v.t && v.show);
+    renderVacBanner();
+    if (location.hash === '#vacances') route();
+  } catch (e) {}
+}
+function vacTitle() { const p = VAC.find(v => v.period); return p ? p.period : 'Spécial vacances'; }
+function renderVacBanner() {
+  const qb = document.querySelector('.q-vac'), qw = document.getElementById('quick');
+  if (qb) qb.hidden = !VAC.length;
+  if (qw) qw.classList.toggle('quick-6', !!VAC.length);
+  const el = document.getElementById('vac-banner');
+  if (!el) return;
+  if (!VAC.length) { el.innerHTML = ''; return; }
+  const top = VAC.slice(0, 4);
+  el.innerHTML = `<section class="vac-home" aria-labelledby="vac-t">
+    <div class="sec-head"><h2 id="vac-t">${esc(vacTitle())}</h2>${VAC.length > top.length ? `<button class="see-all" data-go="#vacances">Voir tout</button>` : ''}</div>
+    <div class="vac-box">
+      <p class="vac-intro">${VAC_ART}<span>${VAC.length} lieu${VAC.length > 1 ? 'x' : ''} avec une programmation spéciale vacances : activités et animations pour les familles</span></p>
+      <ul class="vac-list">${top.map(v => `<li class="vac-item">
+        <div class="vac-txt"><h3>${esc(v.t)}</h3>${v.what ? `<p>${esc(v.what)}</p>` : ''}</div>
+        ${v.url ? `<a class="vac-link" href="${esc(v.url)}" target="_blank" rel="noopener">Voir ↗</a>` : ''}</li>`).join('')}</ul>
+      ${VAC.length > top.length ? `<button class="btn soft vac-all" data-go="#vacances">Voir les ${VAC.length} propositions</button>` : ''}
+    </div></section>`;
+}
+function renderVacances() {
+  const cats = [...new Set(VAC.map(v => v.cat || ''))];
+  const item = v => `<li class="vac-item">
+      <div class="vac-txt"><h3>${esc(v.t)}</h3>${v.what ? `<p>${esc(v.what)}</p>` : ''}
+        ${v.age || v.where ? `<span class="vac-meta">${esc([v.age, v.where].filter(Boolean).join(' · '))}</span>` : ''}</div>
+      ${v.url ? `<a class="vac-link" href="${esc(v.url)}" target="_blank" rel="noopener">Voir ↗</a>` : ''}
+    </li>`;
+  const groups = cats.map(c => {
+    const list = VAC.filter(v => (v.cat || '') === c);
+    return `${c && cats.length > 1 ? `<h2 class="vac-cat">${esc(c)}</h2>` : ''}<ul class="vac-list">${list.map(item).join('')}</ul>`;
+  }).join('');
+  return `<div class="v-head"><button class="icon-btn" data-back aria-label="Retour">${ICON.back}</button><h1>${esc(vacTitle())}</h1></div>
+  ${VAC.length ? `<p class="v-sub">Les lieux qui ont une programmation spéciale pendant les vacances : activités et animations pour toute la famille. Touchez « Voir » pour le programme et les réservations.</p>
+  ${groups}
+  `
+  : '<div class="empty-box" style="margin-top:12px"><p>Le programme des vacances arrive très bientôt.</p></div>'}`;
+}
 async function loadAbout() {
   if (!SHEET_CSV_URL) return;
   try {
@@ -1223,6 +1308,7 @@ function route() {
   else if (h === 'coups-de-coeur') show('coeur', renderCoeur());
   else if (h === 'carte' || (m = h.match(/^carte\/(.+)$/))) { const fid = m && m[1] ? decodeURIComponent(m[1]) : null; show('map', renderMap(fid)); drawMap(fid); }
   else if (h === 'a-propos') show('about', renderAbout());
+  else if (h === 'vacances') show('vacances', renderVacances());
   else if (h === 'resultats') show('results', renderResults());
   else { renderHome(); show('home'); }
   if (changed) { const y = goingBack ? (scrollMem[h] || 0) : 0; window.scrollTo(0, y); if (goingBack && y) setTimeout(() => window.scrollTo(0, y), 60); }
@@ -1342,6 +1428,7 @@ async function load() {
 }
 load();
 loadAbout();
+loadVacances();
 
 </script>
 </body>
