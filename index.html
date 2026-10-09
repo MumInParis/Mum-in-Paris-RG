@@ -343,6 +343,19 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .quick.quick-6{display:flex;overflow-x:auto;gap:2px;padding:0 6px;scrollbar-width:none;scroll-snap-type:x proximity}
 .quick.quick-6::-webkit-scrollbar{display:none}
 .quick.quick-6 .q{flex:0 0 19%;scroll-snap-align:start}
+
+.quick{display:flex!important;justify-content:space-around}
+.quick .q{flex:1 1 0;min-width:0}
+/* Frise « En ce moment » compacte */
+.rail.compact .card{flex:0 0 56%;max-width:205px;border-radius:14px}
+.rail.compact .card .pic{height:100px}
+.rail.compact .card .body{padding:9px 11px 11px}
+.rail.compact .card h3{font-size:16.5px;margin:0 0 6px}
+.rail.compact .facts{font-size:12px;gap:4px 10px}
+.rail.compact .facts svg{width:13px;height:13px}
+.rail.compact .badge{font-size:10px;padding:3px 8px;left:8px;bottom:8px}
+.rail.compact .fav{transform:scale(.85);transform-origin:top right}
+.rail.compact .eph-c{top:7px!important;left:7px!important;font-size:8px!important;padding:2px 5px!important}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -450,7 +463,7 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <h2 id="now">En ce moment</h2>
     <button class="see-all" data-go="#toutes">Voir tout</button>
   </div>
-  <div class="rail" id="rail"></div>
+  <div class="rail compact" id="rail"></div>
   <div class="rail-dots" id="rail-dots" aria-hidden="true"></div>
 </section>
 
@@ -460,7 +473,6 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <button class="q q-vac" data-go="#vacances" hidden><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/><rect x="3.5" y="7" width="17" height="13.5" rx="2"/><path d="M3.5 13.5h17"/><path d="M8 13.5v3.5M16 13.5v3.5"/><rect x="7" y="16" width="2" height="2" rx=".4"/><rect x="15" y="16" width="2" height="2" rx=".4"/></svg></span>Vacances scolaires</button>
     <button class="q q-pink" data-quick="free"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/></svg></span>Gratuit</button>
     <button class="q q-temp" data-quick="temp"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><rect x="3.5" y="5" width="13" height="13" rx="2"/><path d="M3.5 9.5h13M7.5 3v4M12.5 3v4"/><circle cx="17" cy="16.5" r="4.5" fill="var(--temp-bg)"/><path d="M17 14.3v2.4l1.6 1"/></svg></span>Durée limitée</button>
-    <button class="q q-butter" data-quick="age:6-8"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="13" r="7.5"/><path d="M9 4.5q3-2 4 1M9.3 12h.01M14.7 12h.01M9.5 15.5q2.5 2 5 0"/></svg></span>6–8 ans</button>
     <button class="q q-mint" data-quick="type:Manger"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M7 3v6.5a2 2 0 0 0 4 0V3M9 3v18M17 21V3c-2.2 1.3-3.2 4-3.2 7.5H17"/></svg></span>Où manger</button>
     <button class="q q-last" data-quick="soon"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M7 3.5h10M7 20.5h10M8 3.5v3a4 4 0 0 0 2 3.5l2 1.2 2-1.2a4 4 0 0 0 2-3.5v-3M8 20.5v-3a4 4 0 0 1 2-3.5l2-1.2 2 1.2a4 4 0 0 1 2 3.5v3"/><path d="M10 18h4" stroke-width="2.4"/></svg></span>Dernière chance</button>
   </div>
@@ -1228,7 +1240,6 @@ function renderVacBanner() {
   // Pendant les vacances : seule la bulle « Vacances scolaires » apparaît sur l'accueil
   const qb = document.querySelector('.q-vac'), qw = document.getElementById('quick');
   if (qb) qb.hidden = !VAC.length;
-  if (qw) qw.classList.toggle('quick-6', !!VAC.length);
 }
 function renderVacances() {
   const cats = [...new Set(VAC.map(v => v.cat || ''))];
