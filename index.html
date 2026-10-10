@@ -358,6 +358,9 @@ html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .rail.compact .eph-c{top:7px!important;left:7px!important;font-size:8px!important;padding:2px 5px!important}
 .coffee{margin-top:26px;padding-top:20px;border-top:1px solid var(--line);text-align:center}
 .coffee p{font-family:var(--sans,inherit);font-size:14px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5}
+.insta-wrap{display:flex;justify-content:flex-end;margin:12px 0 4px}
+.insta-link{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 9px;border-radius:999px;background:var(--pink-soft);color:var(--pink);text-decoration:none;font-size:12.5px;font-weight:600;line-height:1}
+.insta-link svg{width:16px;height:16px;flex:none}
 </style>
 <script data-goatcounter="https://muminparis.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -644,6 +647,7 @@ function toSortie(o, i, used) {
     featured: /^(oui|o|x|yes|y|1|vrai|true)$/.test(norm(o.en_ce_moment)),
     age: o.age || '', price: o.prix || '', where: o.arrondissement || '', place: o.lieu || '',
     duration: o.duree || '', metro: o.metro || '', url: fixUrl(o.lien_partenaire) || fixUrl(o.lien_de_reservation || o.lien_reservation || (fixUrl(o.reservation) ? o.reservation : '') || o.lien),
+    insta: (u => /instagram\.com/i.test(u) ? u : '')(fixUrl(o.lien_instagram || o.instagram || o.post_instagram || o.lien_insta || o.post_insta || '')),
     partner: !!String(o.lien_partenaire || '').trim() && !/^(non|n|no|0|faux|false)$/.test(norm(o.lien_partenaire)),
     why: o.pourquoi_jaime || '', tip: o.mon_conseil || '', geo: (g => g && g[0] > 48.1 && g[0] < 49.3 && g[1] > 1.4 && g[1] < 3.6 ? g : null)(parseGeo(o.coordonnees || o.coordonnees_gps || '')), photos: String(o.photo || o.photos || '').split(/[\s,;]+/).map(photoUrl).filter(Boolean), art: o._art || '', order: i
   };
@@ -915,9 +919,10 @@ function renderDetail(s) {
       ${s.aVoir && !s.why ? '' : `<h2>${s.aVoir ? 'Pourquoi elle me tente' : 'Pourquoi j’aime'} ${ICON.heart.replace('fill="none"', 'fill="currentColor"')}</h2>
       <p class="why ${s.why ? '' : 'empty'}">${s.why ? esc(s.why).replace(/\n/g, '<br>') : 'Mon avis arrive très bientôt.'}</p>`}
       ${s.tip ? `<div class="tip">${ICON.bulb}<div><strong>Mon conseil</strong><p>${esc(s.tip).replace(/\n/g, '<br>')}</p></div></div>` : ''}
+      ${s.insta ? `<div class="insta-wrap"><a class="insta-link" href="${esc(s.insta)}" target="_blank" rel="noopener">${ICON.insta}<span>En détails</span></a></div>` : ''}
     </div>
     <div class="d-bar"><div class="d-bar-in">
-      ${url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="${s.partner ? 'noopener sponsored' : 'noopener'}">${ICON.ticket}Réserver${s.partner ? '<span class="star-p">*</span>' : ''}</a>` : ''}
+      ${url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="${s.partner ? 'noopener sponsored' : 'noopener'}">${ICON.ticket}On y va&nbsp;!${s.partner ? '<span class="star-p">*</span>' : ''}</a>` : ''}
       ${url && s.partner ? `<p class="partner-note">*Lien partenaire : aucun surcoût pour vous 🤍</p>` : ''}
       <button class="link-btn" data-share>${ICON.share}Partager cette sortie</button>
     </div></div>`;
