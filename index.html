@@ -918,7 +918,7 @@ function renderDetail(s) {
       ${s.aVoir ? `<div class="avoir-note"><strong>👀 Pas encore testée par nous</strong><p>Je l’ai repérée pour vous, et je vous dirai vite ce qu’on en a pensé !</p></div>` : ''}
       ${s.aVoir && !s.why ? '' : `<h2>Qu’est-ce qu’on y trouve&nbsp;? ${ICON.heart.replace('fill="none"', 'fill="currentColor"')}</h2>
       <p class="why ${s.why ? '' : 'empty'}">${s.why ? esc(s.why).replace(/\n/g, '<br>') : 'Mon avis arrive très bientôt.'}</p>`}
-      ${s.tip ? `<div class="tip">${ICON.bulb}<div><strong>Note de la rédaction</strong><p>${esc(s.tip).replace(/\n/g, '<br>')}</p></div></div>` : ''}
+      ${s.tip ? `<div class="tip">${ICON.bulb}<div><strong>Bon à savoir</strong><p>${esc(s.tip).replace(/\n/g, '<br>')}</p></div></div>` : ''}
       ${s.insta ? `<div class="insta-wrap"><a class="insta-link" href="${esc(s.insta)}" target="_blank" rel="noopener">${ICON.insta}<span>En détails</span></a></div>` : ''}
     </div>
     <div class="d-bar"><div class="d-bar-in">
