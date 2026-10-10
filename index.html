@@ -916,9 +916,9 @@ function renderDetail(s) {
       ${s.bday ? `<div class="avoir-note bday-note"><strong>🎂 On peut y fêter un anniversaire</strong><p>${s.bdayNote ? esc(s.bdayNote) : 'Ce lieu organise des anniversaires : renseignez-vous directement auprès de lui pour les formules et les disponibilités.'}</p></div>` : ''}
       ${s.pause ? `<div class="avoir-note pause-note"><strong>⏸ Momentanément en pause</strong><p>${s.pauseNote ? 'En pause ' + esc(s.pauseNote) + '.' : 'Elle reviendra bientôt, je vous tiens au courant !'}</p></div>` : ''}
       ${s.aVoir ? `<div class="avoir-note"><strong>👀 Pas encore testée par nous</strong><p>Je l’ai repérée pour vous, et je vous dirai vite ce qu’on en a pensé !</p></div>` : ''}
-      ${s.aVoir && !s.why ? '' : `<h2>${s.aVoir ? 'Pourquoi elle me tente' : 'Pourquoi j’aime'} ${ICON.heart.replace('fill="none"', 'fill="currentColor"')}</h2>
+      ${s.aVoir && !s.why ? '' : `<h2>Qu’est-ce qu’on y trouve&nbsp;? ${ICON.heart.replace('fill="none"', 'fill="currentColor"')}</h2>
       <p class="why ${s.why ? '' : 'empty'}">${s.why ? esc(s.why).replace(/\n/g, '<br>') : 'Mon avis arrive très bientôt.'}</p>`}
-      ${s.tip ? `<div class="tip">${ICON.bulb}<div><strong>Mon conseil</strong><p>${esc(s.tip).replace(/\n/g, '<br>')}</p></div></div>` : ''}
+      ${s.tip ? `<div class="tip">${ICON.bulb}<div><strong>Note de la rédaction</strong><p>${esc(s.tip).replace(/\n/g, '<br>')}</p></div></div>` : ''}
       ${s.insta ? `<div class="insta-wrap"><a class="insta-link" href="${esc(s.insta)}" target="_blank" rel="noopener">${ICON.insta}<span>En détails</span></a></div>` : ''}
     </div>
     <div class="d-bar"><div class="d-bar-in">
